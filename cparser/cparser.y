@@ -21,6 +21,7 @@ conditional_expression logical_or_expression logical_and_expression inclusize_or
 and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression
 cast_expression unary_expression postfix_expression primary_expression argument_expression_list statement_list_opt
 selection_statement jump_statement iteration_statement else_statement params param_list param call_statement
+statement_and_declaration
 %%
 
 program:
@@ -38,7 +39,7 @@ program:
 external_declaration:
     function_definition 
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
-    | var_declaration 
+    | var_declaration
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
 
 function_definition:
@@ -88,7 +89,6 @@ param:
     { $$ = newast("param", @1.first_line, 1, newtoken("ID", $1, @1.first_line));}
 
 
-
 compound_statement:
     '{' statement_list_opt '}'
     { $$ = newast("compound_statement", @1.first_line, 1, $2); }
@@ -101,10 +101,17 @@ statement_list_opt:
     { $$ = newast("statement_list_opt", $1->line_num, 1, $1); }
 
 statement_list:
-    statement
+    statement_and_declaration
      { $$ = newast("statement_list", $1->line_num, 1, $1); }
-    | statement_list statement 
+    | statement_list statement_and_declaration 
     { $$ = newast("statement_list", $1->line_num, 2, $1, $2); }
+
+statement_and_declaration:
+    var_declaration
+    { $$ = newast("statement_and_declaration", $1->line_num, 1, $1); }
+    |statement
+    { $$ = newast("statement_and_declaration", $1->line_num, 1, $1); }
+    
 
 statement:
     expression_statement 
@@ -119,10 +126,12 @@ statement:
     { $$ = newast("statement", $1->line_num, 1, $1); }
     | call_statement
     { $$ = newast("statement", $1->line_num, 1, $1); }
+    
 
 call_statement:
-    ID '(' params ')' ';'
+    ID %prec '(' params ')' ';'
      { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); }
+
 
 expression_statement:
     ';' 
@@ -141,7 +150,7 @@ assignment_expression:
     { $$ = newast("assignment_expression", $1->line_num, 1, $1); }
     | unary_expression assignment_operator assignment_expression 
     { $$ = newast("assignment_expression", $1->line_num, 3, $1, $2, $3); }
-    | type_specifier ID assignment_operator assignment_expression
+    | declaration_specifiers ID assignment_operator assignment_expression
     { $$ = newast("assignment_expression", $1->line_num, 4, $1, newtoken("ID", $2, @2.first_line), $3, $4); }
 
 assignment_operator:
@@ -326,5 +335,7 @@ jump_statement:
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("RETURN", $1, @1.first_line), $2); }
 
 %%
+
+
 
 
