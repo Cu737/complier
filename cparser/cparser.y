@@ -1,5 +1,6 @@
 %{
 #include "cparser.h"
+#include "quadruples.h"
 %}
 
 %union {
@@ -140,7 +141,7 @@ assignment_expression:
     conditional_expression 
     { $$ = newast("assignment_expression", $1->line_num, 1, $1); }
     | unary_expression assignment_operator assignment_expression 
-    { $$ = newast("assignment_expression", $1->line_num, 3, $1, $2, $3); }
+    { $$ = newast("assignment_expression", $1->line_num, 3, $1, $2, $3); insert("=","#50","$",$1->sym);}
     | type_specifier ID assignment_operator assignment_expression
     { $$ = newast("assignment_expression", $1->line_num, 4, $1, newtoken("ID", $2, @2.first_line), $3, $4); }
 
@@ -240,7 +241,7 @@ cast_expression:
 
 unary_expression:
     postfix_expression 
-    { $$ = newast("unary_expression", $1->line_num, 1, $1); }
+    { $$ = newast("unary_expression", $1->line_num, 1, $1); $$->sym = $1 ->sym;}
     | INC_OP unary_expression 
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("INC_OP", $1, @1.first_line), $2); }
     | DEC_OP unary_expression 
@@ -260,7 +261,7 @@ unary_expression:
 
 postfix_expression:
     primary_expression 
-    { $$ = newast("postfix_expression", $1->line_num, 1, $1); }
+    { $$ = newast("postfix_expression", $1->line_num, 1, $1);$$->sym = $1->sym; }
     | postfix_expression '[' expression ']' 
     { $$ = newast("postfix_expression", $1->line_num, 4, $1, $2, $3, $4);}
     | postfix_expression '(' argument_expression_list ')' 
@@ -276,7 +277,7 @@ postfix_expression:
 
 primary_expression:
     ID 
-    { $$ = newast("primary_expression", @1.first_line, 1, newtoken("ID", $1, @1.first_line)); }
+    { $$ = newast("primary_expression", @1.first_line, 1, newtoken("ID", $1, @1.first_line)); $$->sym = $1;}
     | INT_LITERAL 
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("INT_LITERAL", $1, @1.first_line)); }
     | CHAR_LITERAL 

@@ -20,6 +20,7 @@ struct ast {
     unsigned int line_num;
     size_t num_children;
     struct ast **children;
+    char* sym;
 };
 
 struct tokenval{
