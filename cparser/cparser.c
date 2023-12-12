@@ -12,7 +12,7 @@ newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
     node->nodetype = nodetype;
     node->line_num = line_num;
     node->num_children = num_children;
-    node->sym = "";
+
 
     node->children = malloc(num_children * sizeof(struct ast *));
     if(!node->children) {
@@ -158,7 +158,7 @@ void eval(struct ast *node, unsigned int depth)
         for (unsigned int i = 0; i < depth; ++i) {
             printf(" ");
         }
-        printf("-*%s: (%u) %s\n", nodetype, line_num,node->sym);
+        printf("-*%s: (%u)\n", nodetype, line_num);
         for(size_t i = 0; i<num_children; ++i){
             if (node->children[i] == NULL)
             {   continue;   }
@@ -209,7 +209,6 @@ main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
-    printFourGroup();
 
 
 
