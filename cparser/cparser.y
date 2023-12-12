@@ -151,7 +151,7 @@ assignment_expression:
     { $$ = newast("assignment_expression", $1->line_num, 1, $1); }
     | unary_expression assignment_operator assignment_expression 
     { $$ = newast("assignment_expression", $1->line_num, 3, $1, $2, $3); insert("=","#50","$",$1->sym);}
-    | declaration_specifier ID assignment_operator assignment_expression
+    | declaration_specifiers ID assignment_operator assignment_expression
     { $$ = newast("assignment_expression", $1->line_num, 4, $1, newtoken("ID", $2, @2.first_line), $3, $4); }
 
 assignment_operator:
