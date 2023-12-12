@@ -1,4 +1,5 @@
 #include "cparser.h"
+#include "quadruples.h"
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
@@ -11,7 +12,8 @@ newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
     node->nodetype = nodetype;
     node->line_num = line_num;
     node->num_children = num_children;
-    
+    node->sym = "";
+
     node->children = malloc(num_children * sizeof(struct ast *));
     if(!node->children) {
         fprintf(stderr, "Memory allocation error for ast children\n");
@@ -23,7 +25,7 @@ newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
     for (size_t i=0; i<num_children; ++i){
         node->children[i] = va_arg(args, struct ast *);
     }
-    
+
     va_end(args);
     //printf("newast: %s, (%u)\n", nodetype, line_num);
     //printf("%s\n", node->children[0]->nodetype);
@@ -42,7 +44,7 @@ newtoken(char* nodetype, char* nodevalue, unsigned int line_num)
     token->nodevalue = nodevalue;
     token->line_num = line_num;
 
-    //printf("newtoken: %s, %s (%u)\n", nodetype, nodevalue, line_num);
+    printf("newtoken: %s, %s (%u)\n", nodetype, nodevalue, line_num);
     return (struct ast*) token;
 }
 
@@ -51,7 +53,7 @@ void eval(struct ast *node, unsigned int depth)
     char* nodetype = node->nodetype;
     char* nodevalue;
     unsigned int line_num;
-    
+
     if (strcmp(nodetype, "ID") == 0) {
         printNode(node, depth);
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
@@ -156,7 +158,7 @@ void eval(struct ast *node, unsigned int depth)
         for (unsigned int i = 0; i < depth; ++i) {
             printf(" ");
         }
-        printf("-*%s: (%u)\n", nodetype, line_num);
+        printf("-*%s: (%u) %s\n", nodetype, line_num,node->sym);
         for(size_t i = 0; i<num_children; ++i){
             if (node->children[i] == NULL)
             {   continue;   }
@@ -187,8 +189,8 @@ yyerror(char *s, ...)
     fprintf(stderr, "\n");
 }
 
-int 
-main(int argc, char *argv[]) 
+int
+main(int argc, char *argv[])
 {
    if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file.c>\n", argv[0]);
@@ -206,6 +208,10 @@ main(int argc, char *argv[])
 
     // Call the parser
     yyparse();
+
+    printFourGroup();
+
+
 
     // Close the file
     fclose(input_file);
