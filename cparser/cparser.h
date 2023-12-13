@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <math.h>
 
+struct ast* root;
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
 extern int yylex(void);

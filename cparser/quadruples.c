@@ -1,4 +1,5 @@
 #include "quadruples.h"
+#include "cparser.h"
 //
 // Created by lenovo on 2023/12/10.
 //
@@ -37,5 +38,25 @@ void printFourGroup()
     {
         printf("(%d,%s,%s,%s,%s)\n",temp->id,temp->op,temp->add1,temp->add2,temp->jump);
         temp = temp->next;
+    }
+}
+
+void gen_code(struct ast* node) {
+    char* nodetype = node->nodetype;
+    // 孩子结点的数组
+    struct ast** c_node = node->children;
+    //示例：获得第一个孩子结点类型并打印
+    // char* c_nodetype = c_node[0]->nodetype; 
+    // printf("%s  ,  %s", nodetype, c_nodetype);
+    
+    //条件判断语句
+    if(strcmp(nodetype, "program") == 0) {
+        char* c_nodetype = c_node[0]->nodetype;
+        printf("%s  ", c_nodetype);
+    }else if(strcmp(nodetype, "iteration_statement")){
+        char* c_nodetype = c_node[0]->nodetype;
+        printf("%s  ", c_nodetype);
+    }else{
+
     }
 }

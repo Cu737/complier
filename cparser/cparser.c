@@ -208,6 +208,8 @@ int main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
+    
+
     printFourGroup();
 
     // Close the file

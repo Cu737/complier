@@ -40,7 +40,7 @@ program:
     
 
 external_declaration:
-    function_definition 
+    function_definition
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
     | var_declaration
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
