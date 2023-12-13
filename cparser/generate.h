@@ -182,6 +182,7 @@ void gen_code(struct ast* root)
         {
             if (strcmp(nodetype, "assignment_expression") == 0)
             {
+                  //等于号
                   gen_assignment_expression(root);
             }
         }

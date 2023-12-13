@@ -1,6 +1,4 @@
 %{
-
-#include "quadruples.h"
 #include "generate.h"
 %}
 
