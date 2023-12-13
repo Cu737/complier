@@ -33,12 +33,12 @@ program:
     { 
       $$ = newast("program", $2->line_num, 1, $2);
       eval($$, 0);
-      free($$);
+      root = $$;
     }
     
 
 external_declaration:
-    function_definition 
+    function_definition
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
     | var_declaration
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }

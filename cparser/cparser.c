@@ -209,8 +209,9 @@ main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
+    gen_code(root);
 
-
+    printFourGroup();
 
     // Close the file
     fclose(input_file);
