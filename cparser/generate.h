@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <math.h>
 
+int temp_count =0;
+
 void gen_primary_expression(struct ast*node)
 {
    //除了expression
@@ -19,6 +21,7 @@ void gen_primary_expression(struct ast*node)
       
    }
 }
+
 
 int gen_single_transfer(struct ast *node)
 {
@@ -39,6 +42,23 @@ void gen_assignment_expression(struct ast* node)
    if (node->num_children == 3)
    {
       insert(node->children[1]->value,node->children[2]->value,"$",node->children[0]->value);
+   }
+}
+
+
+void gen_additive_expression(struct ast*node)
+{
+   //除了expression
+    if (node->num_children==3)
+   {
+      char *result = (char *)malloc(14 * sizeof(char));
+      char *temp_char = (char *)malloc(10 * sizeof(char)); // 分配一个长度为 20 的字符数组
+      sprintf(result, "%s%d", "temp",temp_count);
+      //printf("%s\n",result);
+      temp_count++;
+      struct tokenval* token = (struct tokenval*)node->children[1];
+      insert(token->nodevalue,node->children[0]->value,node->children[2]->value,result);
+      node->value = result;
    }
 }
 
@@ -185,6 +205,11 @@ void gen_code(struct ast* root)
                   //等于号
                   gen_assignment_expression(root);
             }
+            else if (strcmp(nodetype, "additive_expression") == 0)
+            {
+                  gen_additive_expression(root);
+            }
+            
         }
         
         
