@@ -1,6 +1,7 @@
 %{
-#include "cparser.h"
+
 #include "quadruples.h"
+#include "generate.h"
 %}
 
 %union {
@@ -33,6 +34,7 @@ program:
     { 
       $$ = newast("program", $2->line_num, 1, $2);
       eval($$, 0);
+      gen_code($$);
       free($$);
     }
     
