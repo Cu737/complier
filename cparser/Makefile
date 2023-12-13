@@ -1,4 +1,4 @@
-cparser: cparser.l cparser.y cparser.h quadruples.h
+cparser: cparser.l cparser.y cparser.h quadruples.h generate.h
 	bison -d  cparser.y
 	flex -ocparser.lex.c cparser.l
 	cc -o $@ cparser.tab.c cparser.lex.c cparser.c quadruples.c

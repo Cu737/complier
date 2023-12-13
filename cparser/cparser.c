@@ -12,6 +12,7 @@ newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
     node->nodetype = nodetype;
     node->line_num = line_num;
     node->num_children = num_children;
+    node->value = "";
 
 
     node->children = malloc(num_children * sizeof(struct ast *));
@@ -43,7 +44,7 @@ newtoken(char* nodetype, char* nodevalue, unsigned int line_num)
     token->nodetype = nodetype;
     token->nodevalue = nodevalue;
     token->line_num = line_num;
-
+    
     printf("newtoken: %s, %s (%u)\n", nodetype, nodevalue, line_num);
     return (struct ast*) token;
 }
@@ -178,8 +179,7 @@ void printNode(struct ast *node, unsigned int depth) {
     printf("-*%s: %s (%u)\n", nodetype, nodevalue, line_num);
 }
 
-void
-yyerror(char *s, ...)
+void yyerror(char *s, ...)
 {
     va_list ap;
     va_start(ap, s);
@@ -189,8 +189,7 @@ yyerror(char *s, ...)
     fprintf(stderr, "\n");
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
    if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file.c>\n", argv[0]);
@@ -209,7 +208,7 @@ main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
-    gen_code(root);
+    
 
     printFourGroup();
 

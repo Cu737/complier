@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <math.h>
 
-struct ast* root;
+//struct ast* root;
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
 extern int yylex(void);
@@ -21,6 +21,7 @@ struct ast {
     unsigned int line_num;
     size_t num_children;
     struct ast **children;
+    char * value;
 
 };
 
