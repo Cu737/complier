@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+void gen_code(struct ast* root);
 
 int temp_count =0;
 
@@ -25,6 +26,7 @@ void gen_primary_expression(struct ast*node)
 
 int gen_single_transfer(struct ast *node)
 {
+   //向上传递值
    if (node->num_children==1 && node->children[0]!= NULL)
    {
       node->value = node->children[0]->value;
@@ -43,11 +45,17 @@ void gen_assignment_expression(struct ast* node)
    {
       insert(node->children[1]->value,node->children[2]->value,"$",node->children[0]->value);
    }
+   else if (node->num_children == 4)
+   {
+      struct tokenval* token = (struct tokenval*)node->children[1];
+      insert(node->children[2]->value,node->children[3]->value,"$",token->nodevalue);
+   }
 }
 
 
 void gen_additive_expression(struct ast*node)
 {
+   //加和乘和位移
    //除了expression
     if (node->num_children==3)
    {
@@ -281,7 +289,10 @@ void gen_code(struct ast* root)
                   //等于号
                   gen_assignment_expression(root);
             }
-            else if (strcmp(nodetype, "additive_expression") == 0)
+            else if (strcmp(nodetype, "additive_expression") == 0 ||strcmp(nodetype, "multiplicative_expression") == 0||strcmp(nodetype, "shift_expression") == 0
+            ||strcmp(nodetype, "relational_expression") == 0||strcmp(nodetype, "equality_expression") == 0||strcmp(nodetype, "and_expression") == 0
+            ||strcmp(nodetype, "exclusive_or_expression") == 0||strcmp(nodetype, "inclusize_or_expression") == 0||strcmp(nodetype, "logical_and_expression") == 0
+            ||strcmp(nodetype, "logical_or_expression") == 0)
             {
                   gen_additive_expression(root);
             }     
