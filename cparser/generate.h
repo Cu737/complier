@@ -10,6 +10,16 @@ char* int_to_cstar(int num);
 
 int temp_count =0;
 
+char* get_result(void)
+{
+   char *result = (char *)malloc(14 * sizeof(char));
+   char *temp_char = (char *)malloc(10 * sizeof(char)); // 分配一个长度为 20 的字符数组
+   sprintf(result, "%s%d", "temp",temp_count);
+   //printf("%s\n",result);
+    temp_count++;
+    return result;
+}
+
 void gen_primary_expression(struct ast*node)
 {
    //除了expression
@@ -35,11 +45,9 @@ void gen_condition_expression (struct ast *node)
    
    gen_code(node->children[4]);
 
-   char *result = (char *)malloc(14 * sizeof(char));
-   char *temp_char = (char *)malloc(10 * sizeof(char)); // 分配一个长度为 20 的字符数组
-   sprintf(result, "%s%d", "temp",temp_count);
-   //printf("%s\n",result);
-   temp_count++;
+   
+
+   char *result = get_result();
 
    insert ("=",node->children[2]->value,"$",result);
    judge->jump = int_to_cstar(FourGroupId-1);
@@ -86,14 +94,74 @@ void gen_additive_expression(struct ast*node)
    //除了expression
     if (node->num_children==3)
    {
-      char *result = (char *)malloc(14 * sizeof(char));
-      char *temp_char = (char *)malloc(10 * sizeof(char)); // 分配一个长度为 20 的字符数组
-      sprintf(result, "%s%d", "temp",temp_count);
-      //printf("%s\n",result);
-      temp_count++;
+      char * result = get_result();
       struct tokenval* token = (struct tokenval*)node->children[1];
       insert(token->nodevalue,node->children[0]->value,node->children[2]->value,result);
       node->value = result;
+   }
+}
+
+void gen_unary_expression(struct ast*node)
+{
+   struct tokenval* token = (struct tokenval*)node->children[0];
+   char *optype = token->nodevalue;
+   char *result = get_result();
+
+    if(strcmp(optype, "++") == 0)
+    {
+      insert("+",node->children[1]->value,"1",result);
+    }
+    else if (strcmp(optype, "--") == 0)
+    {
+      insert("-",node->children[1]->value,"1",result);
+    }
+    else if (strcmp(optype, "+") == 0)
+    {
+      insert("-",node->children[1]->value,"0",result);
+    }
+    else if (strcmp(optype, "-") == 0)
+    {
+      insert("-","0",node->children[1]->value,result);
+    }
+    else if (strcmp(optype, "!") == 0||strcmp(optype, "~") == 0||strcmp(optype, "sizeof") == 0)
+    {
+      if (strcmp(node->children[1]->nodetype, "TYPE") == 0)
+      {
+         struct tokenval* typenode = (struct tokenval*)node->children[1];
+         
+
+         insert(optype,typenode->nodevalue,"$",result);
+      }
+      else
+      {
+         insert(optype,node->children[1]->value,"$",result);
+      }
+      
+    }
+    
+    node->value = result;
+}
+
+void gen_postfix_expression(struct ast* node)
+{
+   //这边暂时只做了++ 和--
+   //数组结构体和其他还没做
+
+   
+   if (node->num_children ==2)
+   {
+      char *result = get_result();
+
+      char * optype = node->children[1]->nodetype;
+      if (strcmp(optype, "INC_OP") == 0)
+      {
+         insert("+",node->children[0]->value,"1",result);
+      }
+      else if(strcmp(optype, "DEC_OP") == 0)
+      {
+         insert("-",node->children[0]->value,"1",result);
+      }
+
    }
 }
 
@@ -319,6 +387,17 @@ void gen_code(struct ast* root)
             {
                   //等于号
                   gen_assignment_expression(root);
+            }
+            else if (strcmp(nodetype, "unary_expression") == 0)
+            {
+                  //等于号
+                  gen_unary_expression(root);
+            }
+            else if (strcmp(nodetype, "postfix_expression") == 0)
+            {
+                  //等于号
+                  
+                  gen_postfix_expression(root);
             }
             else if (strcmp(nodetype, "additive_expression") == 0 ||strcmp(nodetype, "multiplicative_expression") == 0||strcmp(nodetype, "shift_expression") == 0
             ||strcmp(nodetype, "relational_expression") == 0||strcmp(nodetype, "equality_expression") == 0||strcmp(nodetype, "and_expression") == 0
