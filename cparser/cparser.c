@@ -1,5 +1,5 @@
 #include "cparser.h"
-#include "quadruples.h"
+
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
