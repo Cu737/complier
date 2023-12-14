@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include "quadruples.h"
 
 //struct ast* root;
 /* interface to the lexer */
@@ -22,6 +23,8 @@ struct ast {
     size_t num_children;
     struct ast **children;
     char * value;
+
+        
 
 };
 

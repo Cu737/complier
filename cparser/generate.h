@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <math.h>
 void gen_code(struct ast* root);
+char* int_to_cstar(int num);
 
 int temp_count =0;
 
@@ -23,6 +24,32 @@ void gen_primary_expression(struct ast*node)
    }
 }
 
+void gen_condition_expression (struct ast *node)
+{
+   gen_code(node->children[0]);
+   temp_count--;
+   struct FourGroup* judge = tail;
+   //假出口
+   struct FourGroup*  falseJump= insert("jump","$","$","$");
+   gen_code(node->children[2]);
+   
+   gen_code(node->children[4]);
+
+   char *result = (char *)malloc(14 * sizeof(char));
+   char *temp_char = (char *)malloc(10 * sizeof(char)); // 分配一个长度为 20 的字符数组
+   sprintf(result, "%s%d", "temp",temp_count);
+   //printf("%s\n",result);
+   temp_count++;
+
+   insert ("=",node->children[2]->value,"$",result);
+   judge->jump = int_to_cstar(FourGroupId-1);
+   insert ("=",node->children[4]->value,"$",result);
+   falseJump->jump = int_to_cstar(FourGroupId-1);
+
+   node->value = result;
+
+   
+}
 
 int gen_single_transfer(struct ast *node)
 {
@@ -55,7 +82,7 @@ void gen_assignment_expression(struct ast* node)
 
 void gen_additive_expression(struct ast*node)
 {
-   //加和乘和位移
+   //所有二目
    //除了expression
     if (node->num_children==3)
    {
@@ -251,6 +278,10 @@ void gen_code(struct ast* root)
    else if (strcmp(nodetype, "else_statement") == 0) {
        gen_else_statement(root);
 	}
+   else if(strcmp(nodetype, "conditional_expression") == 0 &&root->num_children !=1)
+   {
+         gen_condition_expression(root);
+   }
     else
     {
         size_t num_children = root->num_children;
