@@ -4,15 +4,16 @@
 // Created by lenovo on 2023/12/10.
 //
 /* 声明与结构体相关的函数 */
-int id = 1;
 struct FourGroup * head = NULL;
 struct FourGroup * tail = NULL;
+int FourGroupId = 1;
+
 //这边返回值是为了让大家很方便的获得这个值，这样大家以后就可以对其属性进行修改了
 //比如 $$ = insert($$1->op,"a","b","temp"); $$->add1 = $$1->name
 struct FourGroup* insert(char*op,char*add1,char*add2,char *jump) {
     struct FourGroup* es= malloc(sizeof(struct FourGroup));
-    es->id = id;
-    id ++;
+    es->id = FourGroupId;
+    FourGroupId ++;
     es->op = op;
     es->add1 = add1;
     es->add2 = add2;
