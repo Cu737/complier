@@ -26,7 +26,7 @@ statement_and_declaration
 
 program:
     /* empty */{
-        printf("starting print syntex tree\n");
+        printf("starting print syntex tree \n");
     }
     | program external_declaration 
     { 

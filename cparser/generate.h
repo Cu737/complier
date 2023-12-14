@@ -62,13 +62,45 @@ void gen_additive_expression(struct ast*node)
    }
 }
 
+char* int_to_cstar(int num){
+   char *buffer = (char *)malloc(14 * sizeof(char));
+   sprintf(buffer, "%d", num);
+   return buffer;
+}
+
+void gen_iteration_statement(struct ast* node)
+{
+   struct ast** c_node = node->children;
+   char* c_nodetype = c_node[0]->nodetype;
+   if (strcmp(c_nodetype, "FOR") == 0){
+      gen_code(c_node[1]);
+      int begin = FourGroupId;
+      gen_code(c_node[2]);
+
+      struct FourGroup* position_T = insert("JumpIf", c_node[2]->value, "", int_to_cstar(FourGroupId + 2));
+      struct FourGroup* position_F = insert("Jump", "", "", "");
+      gen_code(c_node[4]);
+      gen_code(c_node[3]);
+
+      struct FourGroup* goto_begin = insert("", "", "", int_to_cstar(begin));
+
+      char* F_index = int_to_cstar(FourGroupId);
+      position_F->jump = F_index;
+   }
+   else if(strcmp(c_nodetype, "WHILE")==0){
+      int begin = FourGroupId;
+      gen_code(c_node[1]);
+      struct FourGroup* true_exit = insert("JumpIf", c_node[1]->value, "", int_to_cstar(FourGroupId + 2));
+      struct FourGroup* false_exit = insert("Jump", "", "", "");
+      gen_code(c_node[2]);
+      struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
+      false_exit->jump = int_to_cstar(FourGroupId);
+   }
+}
 
 
 void gen_code(struct ast* root)
 {
-
-    
-   
     char* nodetype = root->nodetype;
     if (strcmp(nodetype, "ID") == 0) {
         printf("%s\n",nodetype);
@@ -209,6 +241,11 @@ void gen_code(struct ast* root)
             {
                   gen_additive_expression(root);
             }
+            else if (strcmp(nodetype, "iteration_statement") == 0)
+            {
+                  gen_iteration_statement(root);
+            }
+            
             
         }
         

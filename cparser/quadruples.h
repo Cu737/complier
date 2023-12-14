@@ -21,6 +21,8 @@ struct FourGroup {
     struct FourGroup* next;
 };
 
+int FourGroupId;
+
 void printFourGroup();
 struct FourGroup* insert(char*op,char*add1,char*add2,char* jump);
 
