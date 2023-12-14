@@ -82,7 +82,7 @@ void gen_iteration_statement(struct ast* node)
       gen_code(c_node[4]);
       gen_code(c_node[3]);
 
-      struct FourGroup* goto_begin = insert("", "", "", int_to_cstar(begin));
+      struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
 
       char* F_index = int_to_cstar(FourGroupId);
       position_F->jump = F_index;
