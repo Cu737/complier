@@ -19,7 +19,7 @@ int main() {
         }
     }
 
-    // print the value of `sum`
+    //print the value of `sum`
     printf(sum);
 
     return 0;

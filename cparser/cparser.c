@@ -154,6 +154,7 @@ void eval(struct ast *node, unsigned int depth)
 	} else if (strcmp(nodetype, "STAR_OP") == 0) {
        printNode(node, depth);
 	}
+    
     else{
         /* for nonterrminals */
         size_t num_children = node->num_children;
@@ -212,7 +213,8 @@ int main(int argc, char *argv[])
 
     
 
-    //printFourGroup();
+    printFourGroup();
+    
 
     // Close the file
     fclose(input_file);
