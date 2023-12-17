@@ -262,6 +262,8 @@ unary_expression:
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("DEC_OP", $1, @1.first_line), $2); }
     | STAR_OP unary_expression 
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("STAR_OP", $1, @1.first_line), $2); }  //modify 2
+    | '&' unary_expression 
+    { $$ = newast("unary_expression", @1.first_line, 2, newtoken("AMPERSAND", $1, @1.first_line), $2); }  
     | '+' cast_expression 
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("ADD_OP", "+", @1.first_line), $2); }
     | '-' cast_expression 

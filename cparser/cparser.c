@@ -214,6 +214,7 @@ int main(int argc, char *argv[])
     
 
     printFourGroup();
+    
 
     // Close the file
     fclose(input_file);

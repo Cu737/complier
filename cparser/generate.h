@@ -10,6 +10,7 @@ char* int_to_cstar(int num);
 
 int temp_count =0;
 
+
 char* get_result(void)
 {
    char *result = (char *)malloc(14 * sizeof(char));
@@ -30,6 +31,10 @@ void gen_primary_expression(struct ast*node)
          struct tokenval* token = (struct tokenval*)node->children[0];
          node->value = token->nodevalue;
       }
+      else
+      {
+         node->value = node->children[0]->value;
+      }
       
    }
 }
@@ -38,13 +43,13 @@ void gen_condition_expression (struct ast *node)
 {
    gen_code(node->children[0]);
    temp_count--;
-   struct FourGroup* judge = tail;
+    struct FourGroup* judge = tail;
    //假出口
    struct FourGroup*  falseJump= insert("jump","$","$","$");
    gen_code(node->children[2]);
    
    gen_code(node->children[4]);
-
+   
    
 
    char *result = get_result();
@@ -55,7 +60,6 @@ void gen_condition_expression (struct ast *node)
    falseJump->jump = int_to_cstar(FourGroupId-1);
 
    node->value = result;
-
    
 }
 
@@ -70,20 +74,19 @@ int gen_single_transfer(struct ast *node)
    return 0;
 }
 
-
-
-
 void gen_assignment_expression(struct ast* node)
 {
    //assignment ->unary
    if (node->num_children == 3)
    {
+      
       insert(node->children[1]->value,node->children[2]->value,"$",node->children[0]->value);
+      
    }
    else if (node->num_children == 4)
    {
-      struct tokenval* token = (struct tokenval*)node->children[1];
-      insert(node->children[2]->value,node->children[3]->value,"$",token->nodevalue);
+      insert(node->children[2]->value,node->children[3]->value,"$",node->children[1]->value);
+      
    }
 }
 
@@ -103,43 +106,68 @@ void gen_additive_expression(struct ast*node)
 
 void gen_unary_expression(struct ast*node)
 {
+   
    struct tokenval* token = (struct tokenval*)node->children[0];
    char *optype = token->nodevalue;
-   char *result = get_result();
+   
+   
 
     if(strcmp(optype, "++") == 0)
-    {
-      insert("+",node->children[1]->value,"1",result);
+    {  
+      
+      insert("+",node->children[1]->value,"1",node->children[1]->value);
+      node->value = node->children[1]->value;
+      
     }
     else if (strcmp(optype, "--") == 0)
     {
-      insert("-",node->children[1]->value,"1",result);
-    }
-    else if (strcmp(optype, "+") == 0)
-    {
-      insert("-",node->children[1]->value,"0",result);
-    }
-    else if (strcmp(optype, "-") == 0)
-    {
-      insert("-","0",node->children[1]->value,result);
-    }
-    else if (strcmp(optype, "!") == 0||strcmp(optype, "~") == 0||strcmp(optype, "sizeof") == 0)
-    {
-      if (strcmp(node->children[1]->nodetype, "TYPE") == 0)
-      {
-         struct tokenval* typenode = (struct tokenval*)node->children[1];
-         
-
-         insert(optype,typenode->nodevalue,"$",result);
-      }
-      else
-      {
-         insert(optype,node->children[1]->value,"$",result);
-      }
+      
+      insert("-",node->children[1]->value,"1",node->children[1]->value);
+      node->value = node->children[1]->value;
       
     }
-    
-    node->value = result;
+    else
+    {
+      char *result = get_result();
+      if (strcmp(optype, "+") == 0)
+      {
+         insert("-",node->children[1]->value,"0",result);
+         
+      }
+      else if (strcmp(optype, "-") == 0)
+      {
+         insert("-","0",node->children[1]->value,result);
+      }
+      else if (strcmp(optype, "!") == 0||strcmp(optype, "~") == 0||strcmp(optype, "sizeof") == 0)
+      {
+         if (strcmp(node->children[1]->nodetype, "TYPE") == 0)
+         {
+            struct tokenval* typenode = (struct tokenval*)node->children[1];
+            
+
+            insert(optype,typenode->nodevalue,"$",result);
+         }
+         else
+         {
+            insert(optype,node->children[1]->value,"$",result);
+         }
+         
+      }
+      else if (strcmp(optype, "*") == 0)
+      {
+         
+            insert("ToAddress",node->children[1]->value,"$",result);
+            
+      }
+      else if (strcmp(optype, "&") == 0)
+      {
+         
+            insert("GetAddress",node->children[1]->value,"$",result);
+            
+      }
+      node->value = result;
+    }
+   
 }
 
 void gen_postfix_expression(struct ast* node)
@@ -150,19 +178,24 @@ void gen_postfix_expression(struct ast* node)
    
    if (node->num_children ==2)
    {
+      
       char *result = get_result();
-
       char * optype = node->children[1]->nodetype;
       if (strcmp(optype, "INC_OP") == 0)
       {
-         insert("+",node->children[0]->value,"1",result);
+         insert("=",node->children[0]->value,"$",result);
+         insert("+",node->children[0]->value,"1",node->children[0]->value);
+         node->value = result;
       }
       else if(strcmp(optype, "DEC_OP") == 0)
       {
-         insert("-",node->children[0]->value,"1",result);
+         insert("=",node->children[0]->value,"$",result);
+         insert("-",node->children[0]->value,"1",node->children[0]->value);
+         node->value = result;
       }
 
    }
+    
 }
 
 char* int_to_cstar(int num){
@@ -337,6 +370,9 @@ void gen_code(struct ast* root)
     } else if (strcmp(nodetype, "REMAIN_OP") == 0) {
        printf("%s\n",nodetype);
 	}
+   else if (strcmp(nodetype, "STAR_OP") == 0) {
+       printf("%s\n",nodetype);
+	}
    else if (strcmp(nodetype, "iteration_statement") == 0) {
        gen_iteration_statement(root);
    }
@@ -391,12 +427,13 @@ void gen_code(struct ast* root)
             else if (strcmp(nodetype, "unary_expression") == 0)
             {
                   //等于号
+                  
                   gen_unary_expression(root);
             }
             else if (strcmp(nodetype, "postfix_expression") == 0)
             {
                   //等于号
-                  
+                 
                   gen_postfix_expression(root);
             }
             else if (strcmp(nodetype, "additive_expression") == 0 ||strcmp(nodetype, "multiplicative_expression") == 0||strcmp(nodetype, "shift_expression") == 0
@@ -404,6 +441,7 @@ void gen_code(struct ast* root)
             ||strcmp(nodetype, "exclusive_or_expression") == 0||strcmp(nodetype, "inclusize_or_expression") == 0||strcmp(nodetype, "logical_and_expression") == 0
             ||strcmp(nodetype, "logical_or_expression") == 0)
             {
+                  
                   gen_additive_expression(root);
             }     
       }    

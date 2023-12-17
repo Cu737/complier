@@ -40,6 +40,7 @@ void printFourGroup()
         printf("(%d,%s,%s,%s,%s)\n",temp->id,temp->op,temp->add1,temp->add2,temp->jump);
         temp = temp->next;
     }
+    
 }
 
 // void gen_code(struct ast* node) {
