@@ -151,7 +151,10 @@ void eval(struct ast *node, unsigned int depth)
        printNode(node, depth);
     } else if (strcmp(nodetype, "REMAIN_OP") == 0) {
        printNode(node, depth);
+	} else if (strcmp(nodetype, "STAR_OP") == 0) {
+       printNode(node, depth);
 	}
+    
     else{
         /* for nonterrminals */
         size_t num_children = node->num_children;

@@ -40,7 +40,7 @@ void gen_condition_expression (struct ast *node)
    temp_count--;
    struct FourGroup* judge = tail;
    //假出口
-   struct FourGroup*  falseJump= insert("JumpIf","$","$","$");
+   struct FourGroup*  falseJump= insert("jump","$","$","$");
    gen_code(node->children[2]);
    
    gen_code(node->children[4]);
@@ -185,7 +185,7 @@ void gen_iteration_statement(struct ast* node)
       gen_code(c_node[4]);
       gen_code(c_node[3]);
 
-      struct FourGroup* goto_begin = insert("JUMP", "", "", int_to_cstar(begin));
+      struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
 
       char* F_index = int_to_cstar(FourGroupId);
       position_F->jump = F_index;

@@ -8,7 +8,7 @@
 }
 
 %token <c> ID TYPE INT_LITERAL CHAR_LITERAL STRING_LITERAL SIZEOF
-OR_OP AND_OP EQ_OP NE_OP LE_OP GE_OP LEFT_OP RIGHT_OP INC_OP DEC_OP PTR_OP 
+OR_OP AND_OP EQ_OP NE_OP LE_OP GE_OP LEFT_OP RIGHT_OP INC_OP DEC_OP PTR_OP STAR_OP
 IF ELSE WHILE FOR GOTO CONTINUE BREAK RETURN   
 '(' ')' '[' ']'  '.' '<' '>' '+' '-' '*' '/'  '?' '|' '~' '&' '^' ':' '!' '%' '='
 TRUE FALSE CONST SWITCH CASE DEFAULT DO SCANF PRINTF ASSIGNDIV
@@ -21,8 +21,11 @@ conditional_expression logical_or_expression logical_and_expression inclusize_or
 and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression
 cast_expression unary_expression postfix_expression primary_expression argument_expression_list statement_list_opt
 selection_statement jump_statement iteration_statement else_statement params param_list param call_statement
-statement_and_declaration
+statement_and_declaration primary_expression_list
+
 %%
+
+
 
 program:
     /* empty */{
@@ -44,17 +47,17 @@ external_declaration:
     { $$ = newast("external_declaration", $1->line_num, 1, $1); }
 
 function_definition:
-    declaration_specifiers ID '(' params ')' compound_statement 
+    declaration_specifiers ID '(' params ')' compound_statement
     { $$ = newast("function_definition", $1->line_num, 4, $1, newtoken("ID", $2, @2.first_line), $4, $6); }
-
+    
 var_declaration:
-    declaration_specifiers ID ';'
+    declaration_specifiers postfix_expression ';'
     { 
-        $$ = newast("var_declaration", $1->line_num, 2, $1, newtoken("ID", $2, @2.first_line));
+        $$ = newast("var_declaration", $1->line_num, 2, $1, $2);
     }
-    | declaration_specifiers ID '[' INT_LITERAL ']' ';'
-    { $$ = newast("var_declaration", $1->line_num, 3, $1, newtoken("ID", $2, @2.first_line), newtoken("INT_LITERAL", $4, @4.first_line));}
-
+    | declaration_specifiers STAR_OP ID ';'
+    { $$ = newast("var_declaration", $1->line_num, 3, $1, newtoken("STAR_OP", $2, @2.first_line), newtoken("ID", $3, @3.first_line));} //modify
+    
 declaration_specifiers:
     type_specifier 
     { $$ = newast("declaration_specifiers", $1->line_num, 1, $1); }
@@ -130,7 +133,7 @@ statement:
     
 
 call_statement:
-    ID %prec '(' params ')' ';'
+    ID '(' params ')' ';'
      { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); }
 
 
@@ -151,8 +154,10 @@ assignment_expression:
     { $$ = newast("assignment_expression", $1->line_num, 1, $1); }
     | unary_expression assignment_operator assignment_expression 
     { $$ = newast("assignment_expression", $1->line_num, 3, $1, $2, $3); }
-    | declaration_specifiers ID assignment_operator assignment_expression
-    { $$ = newast("assignment_expression", $1->line_num, 4, $1, newtoken("ID", $2, @2.first_line), $3, $4); }
+    | declaration_specifiers unary_expression assignment_operator assignment_expression // modify1
+    { $$ = newast("assignment_expression", $1->line_num, 4, $1, $2, $3, $4); }
+    | declaration_specifiers unary_expression assignment_operator '{' primary_expression_list '}'
+    { $$ = newast("assignment_expression", $1->line_num, 4, $1, $2, $3, $5); }
 
 assignment_operator:
     '='
@@ -235,7 +240,7 @@ additive_expression:
 multiplicative_expression:
     cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 1, $1); }
-    | multiplicative_expression '*' cast_expression 
+    | multiplicative_expression STAR_OP cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("MUL_OP", $2, @2.first_line), $3); }
     | multiplicative_expression '/' cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("DIV_OP", $2, @2.first_line), $3); }
@@ -255,6 +260,8 @@ unary_expression:
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("INC_OP", $1, @1.first_line), $2); }
     | DEC_OP unary_expression 
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("DEC_OP", $1, @1.first_line), $2); }
+    | STAR_OP unary_expression 
+    { $$ = newast("unary_expression", @1.first_line, 2, newtoken("STAR_OP", $1, @1.first_line), $2); }  //modify 2
     | '+' cast_expression 
     { $$ = newast("unary_expression", @1.first_line, 2, newtoken("ADD_OP", "+", @1.first_line), $2); }
     | '-' cast_expression 
@@ -271,8 +278,8 @@ unary_expression:
 postfix_expression:
     primary_expression 
     { $$ = newast("postfix_expression", $1->line_num, 1, $1); }
-    | postfix_expression '[' expression ']' 
-    { $$ = newast("postfix_expression", $1->line_num, 4, $1, $2, $3, $4);}
+    | postfix_expression '[' INT_LITERAL ']'  //modify
+    { $$ = newast("postfix_expression", $1->line_num, 2, $1, newtoken("INT_LITERAL", $3, @3.first_line));}
     | postfix_expression '(' argument_expression_list ')' 
     { $$ = newast("postfix_expression", $1->line_num, 2, $1, $3);}
     | postfix_expression '.' ID 
@@ -295,6 +302,12 @@ primary_expression:
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("STRING_LITERAL", $1, @1.first_line)); }
     | '(' expression ')' 
     { $$ = newast("primary_expression", @1.first_line, 1, $2); }
+
+primary_expression_list:
+    primary_expression
+    { $$ = newast("primary_expression_list", $1->line_num, 1, $1); }
+    | primary_expression_list ',' primary_expression
+    { $$ = newast("primary_expression_list", $1->line_num, 2, $1, $3); }
 
 argument_expression_list:
     assignment_expression 
@@ -324,7 +337,7 @@ iteration_statement:
     { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); }
 
 jump_statement:
-    GOTO ID ';' 
+      GOTO ID  ';' 
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("GOTO", $1, @1.first_line), newtoken("ID", $2, @2.first_line)); }
     | CONTINUE ';' 
     { $$ = newast("jump_statement", @1.first_line, 1, newtoken("CONTINUE", $1, @1.first_line)); }
