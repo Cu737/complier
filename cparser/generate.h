@@ -165,6 +165,7 @@ void gen_unary_expression(struct ast*node)
             insert("GetAddress",node->children[1]->value,"$",result);
             
       }
+
       node->value = result;
     }
    
@@ -193,6 +194,17 @@ void gen_postfix_expression(struct ast* node)
          insert("-",node->children[0]->value,"1",node->children[0]->value);
          node->value = result;
       }
+      else if (strcmp(optype,"INT_LITERAL") ==0)
+      {
+         struct tokenval* token = (struct tokenval*)node->children[1];
+         char *num = token->nodevalue;
+         char *result1 = get_result();
+         insert("+",node->children[0]->value,num,result1);
+         char * result2 = get_result();
+         insert("ToAdrress",result1,"$",result2);
+         node->value = result2;
+      }
+      
 
    }
     
@@ -385,6 +397,68 @@ void gen_code(struct ast* root)
    else if(strcmp(nodetype, "conditional_expression") == 0 &&root->num_children !=1)
    {
          gen_condition_expression(root);
+   }else if (strcmp(nodetype,"assignment_expression")==0 && root->num_children ==4&&strcmp(root->children[3]->nodetype,"primary_expression_list")==0)
+   {
+      
+      struct ast*temp = root->children[1]; //unary_expression
+      temp = temp->children[0]; //fisrt postfix
+      gen_code(temp->children[0]);//标识符读取
+      char * id_str = temp->children[0]->value;
+
+      temp = temp->children[1];
+      struct tokenval* token = (struct tokenval*)temp;//提取数组数量
+      int array_num = atoi(token->nodevalue);
+
+      //初始化记录数组
+      temp = root->children[3];
+      char ** array_all = (char**)malloc(sizeof (char*)*array_num);
+      
+      int count = array_num;
+      
+      while(count >0)
+      {
+         count --;
+         
+         if(temp->num_children == 2)
+         {
+            gen_code(temp->children[1]);   
+            array_all[count] = temp->children[1]->value;
+            temp = temp->children[0];  
+
+         }
+         else
+         {
+            gen_code(temp->children[0]);
+            temp = temp->children[0];
+            array_all[count] = temp->value;
+         }
+         
+      }
+      for (int i =0; i<array_num; i++)
+      {
+         if(i==0)
+         {
+            char *result = get_result();
+            insert("ToAdress",id_str,"$",result);
+            insert("=",array_all[i],"$",result);
+
+         }
+         else
+         {
+            char *result = get_result();
+            insert("+",id_str,int_to_cstar(i),result);
+            char *result1 = get_result();
+            insert("ToAdress",result,"$",result1);
+            insert("=",array_all[i],"$",result1);
+         }
+        
+      }
+      
+
+      
+      
+      
+      
    }
     else
     {
