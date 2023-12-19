@@ -1,5 +1,6 @@
 #include "quadruples.h"
 #include "cparser.h"
+#include "./symbol_table/symbol.h"
 #include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -231,7 +232,6 @@ void gen_iteration_statement(struct ast* node)
       gen_code(c_node[3]);
 
       struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
-
       char* F_index = int_to_cstar(FourGroupId);
       position_F->jump = F_index;
    }

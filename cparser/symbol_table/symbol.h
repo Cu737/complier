@@ -21,6 +21,8 @@ typedef struct {
     int count;
 } SymbolTable;
 
+extern SymbolTable symbolTable;// 全局变量
+
 void initializeSymbolTable(SymbolTable* table);
 void addSymbol(SymbolTable* table, const char* name, DataType type, int size, int address);
 SymbolEntry* findSymbol(SymbolTable* table, const char* name);

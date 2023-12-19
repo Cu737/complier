@@ -1,7 +1,6 @@
 #include "symbol.h"
 
 int main() {
-    SymbolTable symbolTable;
     initializeSymbolTable(&symbolTable);
 
     // 添加一些符号到符号表中

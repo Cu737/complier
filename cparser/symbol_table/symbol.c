@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+SymbolTable symbolTable;
+
 void initializeSymbolTable(SymbolTable* table) {
     table->count = 0;
 }

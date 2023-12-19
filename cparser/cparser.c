@@ -1,4 +1,5 @@
 #include "cparser.h"
+#include "./symbol_table/symbol.h"
 
 
 struct ast *
@@ -207,6 +208,8 @@ int main(int argc, char *argv[])
 
     // Set the input file for the lexer
     yyset_in(input_file);
+
+    initializeSymbolTable(&symbolTable);
 
     // Call the parser
     yyparse();
