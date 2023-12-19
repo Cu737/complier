@@ -226,22 +226,22 @@ void gen_iteration_statement(struct ast* node)
       int begin = FourGroupId;
       gen_code(c_node[2]);
 
-      struct FourGroup* position_T = insert("JumpIf", c_node[2]->value, "", int_to_cstar(FourGroupId + 2));
-      struct FourGroup* position_F = insert("Jump", "", "", "");
+      struct FourGroup* position_T = insert("JumpIf", c_node[2]->value, "$", int_to_cstar(FourGroupId + 2));
+      struct FourGroup* position_F = insert("Jump", "$", "$", "$");
       gen_code(c_node[4]);
       gen_code(c_node[3]);
 
-      struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
+      struct FourGroup* goto_begin = insert("Jump", "$", "$", int_to_cstar(begin));
       char* F_index = int_to_cstar(FourGroupId);
       position_F->jump = F_index;
    }
    else if(strcmp(c_nodetype, "WHILE")==0){
       int begin = FourGroupId;
       gen_code(c_node[1]);
-      struct FourGroup* true_exit = insert("JumpIf", c_node[1]->value, "", int_to_cstar(FourGroupId + 2));
-      struct FourGroup* false_exit = insert("Jump", "", "", "");
+      struct FourGroup* true_exit = insert("JumpIf", c_node[1]->value, "$", int_to_cstar(FourGroupId + 2));
+      struct FourGroup* false_exit = insert("Jump", "$", "$", "$");
       gen_code(c_node[2]);
-      struct FourGroup* goto_begin = insert("Jump", "", "", int_to_cstar(begin));
+      struct FourGroup* goto_begin = insert("Jump", "$", "$", int_to_cstar(begin));
       false_exit->jump = int_to_cstar(FourGroupId);
    }
 }
@@ -252,8 +252,8 @@ void gen_selection_statement(struct ast* node)
       struct ast** c_node = node->children;
       size_t num_children = node->num_children;
       gen_code(c_node[1]);
-      struct FourGroup* true_exit = insert("JumpIf", c_node[1]->value, "", int_to_cstar(FourGroupId + 2));
-      struct FourGroup* false_exit = insert("Jump", "", "", "");
+      struct FourGroup* true_exit = insert("JumpIf", c_node[1]->value, "$", int_to_cstar(FourGroupId + 2));
+      struct FourGroup* false_exit = insert("Jump", "$", "$", "$");
       gen_code(c_node[2]);
       false_exit->jump = int_to_cstar(FourGroupId);
       if(num_children==4)
@@ -272,8 +272,8 @@ void gen_else_statement(struct ast* node)
       else if(num_children==5)
       {
             gen_code(c_node[2]);
-            struct FourGroup* true_exit = insert("JumpIf", c_node[2]->value, "", int_to_cstar(FourGroupId + 2));
-            struct FourGroup* false_exit = insert("Jump", "", "", "");
+            struct FourGroup* true_exit = insert("JumpIf", c_node[2]->value, "$", int_to_cstar(FourGroupId + 2));
+            struct FourGroup* false_exit = insert("Jump", "$", "$", "$");
             gen_code(c_node[3]);
             false_exit->jump = int_to_cstar(FourGroupId);
             gen_code(c_node[4]);
