@@ -21,6 +21,7 @@ struct FourGroup {
     struct FourGroup* next;
 };
 
+extern struct FourGroup* head;
 extern struct FourGroup* tail;
 extern int FourGroupId;
 
