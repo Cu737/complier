@@ -220,6 +220,7 @@ int main(int argc, char *argv[])
 
     printFourGroup();
     printfAllEntry(&symbolTable);
+    printfAllEntry(&constSymbolTable);
 
     
 

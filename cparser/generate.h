@@ -113,11 +113,57 @@ void gen_assignment_expression(struct ast* node)
       
       insert(node->children[1]->value,node->children[2]->value,"$",node->children[0]->value);
       
+      if(getType(&symbolTable,node->children[0]->value,-1) == getType(&symbolTable,node->children[2]->value,-1))
+      {
+         
+      }
+      else
+      {
+         if (getTypeArray(&symbolTable,node->children[2]->value) == 3 && getType(&symbolTable,node->children[0]->value,-1) > 3)
+         {
+            if (getType(&symbolTable,node->children[2]->value,0) +4 == getType(&symbolTable,node->children[0]->value,-1))
+            {
+            }
+            else
+            {
+               printf("%s and %s do not have the same type!\n",node->children[0]->value,node->children[2]->value);
+            }
+         }
+         else
+         {
+            printf("%s and %s do not have the same type!\n",node->children[0]->value,node->children[2]->value);
+         }
+         
+
+      }
+      
    }
    else if (node->num_children == 4)
    {
       insert(node->children[2]->value,node->children[3]->value,"$",node->children[1]->value);
       judgeType(node->children[0]->value,node->children[1]->value,-1);
+      if(getType(&symbolTable,node->children[1]->value,-1) == getType(&symbolTable,node->children[3]->value,-1))
+      {
+         
+      }
+      else
+      {
+         
+         if (getTypeArray(&symbolTable,node->children[3]->value) == 3 && getType(&symbolTable,node->children[1]->value,-1) > 3)
+         {
+            if (getType(&symbolTable,node->children[3]->value,0) +4 == getType(&symbolTable,node->children[1]->value,-1))
+            {
+            }
+            else
+            {
+               printf("%s and %s do not have the same type!\n",node->children[1]->value,node->children[3]->value);
+            }
+         }
+         else
+         {
+            printf("%s and %s do not have the same type!\n",node->children[1]->value,node->children[3]->value);
+         }
+      }
       
    }
 }
@@ -132,7 +178,19 @@ void gen_additive_expression(struct ast*node)
       char * result = get_result();
       struct tokenval* token = (struct tokenval*)node->children[1];
       insert(token->nodevalue,node->children[0]->value,node->children[2]->value,result);
+      
       node->value = result;
+      
+      if(getType(&symbolTable,node->children[0]->value,-1) == getType(&symbolTable,node->children[2]->value,-1))
+      {
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
+      }
+      else
+      {
+         printf("%s and %s do not have the same type!\n",node->children[0]->value,node->children[2]->value);
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
+
+      }
    }
 }
 
@@ -150,6 +208,7 @@ void gen_unary_expression(struct ast*node)
       insert("+",node->children[1]->value,"1",node->children[1]->value);
       node->value = node->children[1]->value;
       
+      
     }
     else if (strcmp(optype, "--") == 0)
     {
@@ -157,18 +216,38 @@ void gen_unary_expression(struct ast*node)
       insert("-",node->children[1]->value,"1",node->children[1]->value);
       node->value = node->children[1]->value;
       
+      
     }
     else
     {
       char *result = get_result();
       if (strcmp(optype, "+") == 0)
       {
-         insert("-",node->children[1]->value,"0",result);
+         insert("+",node->children[1]->value,"0",result);
+         if(getType(&symbolTable,node->children[1]->value,-1) != INT_TYPE &&getType(&symbolTable,node->children[1]->value,-1) != FLOAT_TYPE)
+         {
+            
+            printf("this type %s can not +!,must be a number!\n",node->children[1]->value);
+            addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1),-1,"");
+         }
+         else
+         {
+            addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1),-1,"");
+         }
          
       }
       else if (strcmp(optype, "-") == 0)
       {
          insert("-","0",node->children[1]->value,result);
+         if(getType(&symbolTable,node->children[1]->value,-1) != INT_TYPE &&getType(&symbolTable,node->children[1]->value,-1) != FLOAT_TYPE)
+         {
+            printf("this type %s can not -!,must be a number\n",node->children[1]->value);
+            addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1),-1,"");
+         }
+         else
+         {
+            addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1),-1,"");
+         }
       }
       else if (strcmp(optype, "!") == 0||strcmp(optype, "~") == 0||strcmp(optype, "sizeof") == 0)
       {
@@ -178,10 +257,21 @@ void gen_unary_expression(struct ast*node)
             
 
             insert(optype,typenode->nodevalue,"$",result);
+            addSymbol(&symbolTable,result,INT_TYPE,-1,"");
          }
          else
          {
             insert(optype,node->children[1]->value,"$",result);
+            if(getType(&symbolTable,node->children[1]->value,-1) != INT_TYPE &&(strcmp(optype, "!") == 0||strcmp(optype, "~") == 0))
+            {
+               printf("this type %s can not ! ~ !,must be a int\n",node->children[1]->value);
+               addSymbol(&symbolTable,result,INT_TYPE,-1,"");
+            }
+            else
+            {
+               addSymbol(&symbolTable,result,INT_TYPE,-1,"");
+            }
+            
          }
          
       }
@@ -189,13 +279,32 @@ void gen_unary_expression(struct ast*node)
       {
          
             insert("ToAddress",node->children[1]->value,"$",result);
-
+            if (getType(&symbolTable,node->children[1]->value,-1) != INT_POINTER_TYPE && getType(&symbolTable,node->children[1]->value,-1) != FLOAT_POINTER_TYPE &&
+            getType(&symbolTable,node->children[1]->value,-1)!=CHAR_POINTER_TYPE)
+            {
+               printf("this type %s can not toAdress!must be a pointer!\n",node->children[1]->value);
+               addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1)-4,-1,"");
+            }
+            else
+            {
+               addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1)-4,-1,"");
+            }
             
       }
       else if (strcmp(optype, "&") == 0)
       {
          
             insert("GetAddress",node->children[1]->value,"$",result);
+            if (getType(&symbolTable,node->children[1]->value,-1) != INT_TYPE && getType(&symbolTable,node->children[1]->value,-1) != FLOAT_TYPE &&
+            getType(&symbolTable,node->children[1]->value,-1)!=CHAR_TYPE)
+            {
+               printf("this type %s can not GetAdress!must not be a pointer!\n",node->children[1]->value);
+               addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1)+4,-1,"");
+            }
+            else
+            {
+                addSymbol(&symbolTable,result,getType(&symbolTable,node->children[1]->value,-1)+4,-1,"");
+            }
             
       }
 
@@ -220,12 +329,14 @@ void gen_postfix_expression(struct ast* node)
          insert("=",node->children[0]->value,"$",result);
          insert("+",node->children[0]->value,"1",node->children[0]->value);
          node->value = result;
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
       else if(strcmp(optype, "DEC_OP") == 0)
       {
          insert("=",node->children[0]->value,"$",result);
          insert("-",node->children[0]->value,"1",node->children[0]->value);
          node->value = result;
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
       else if (strcmp(optype,"INT_LITERAL") ==0)
       {
@@ -236,6 +347,11 @@ void gen_postfix_expression(struct ast* node)
          char * result2 = get_result();
          insert("ToAdrress",result1,"$",result2);
          node->value = result2;
+         if(getTypeArray(&symbolTable,node->children[0]->value) != 3)
+         {
+            printf("%s is not a array!\n",node->children[0]->value);
+         }
+         addSymbol(&symbolTable,result2,getType(&symbolTable,node->children[0]->value,0),-1,"");
       }
       
 
@@ -380,14 +496,19 @@ void gen_array(struct ast *node)
 void gen_declaration(struct ast* node)
 {
    gen_code(node->children[0]);
+   
    struct ast *temp = node->children[1];
    if (strcmp(temp->children[0]->nodetype,"postfix_expression")==0 )
    {
       gen_code(temp->children[0]);
+      char * array_type = node->children[0]->value;
       struct tokenval* token = (struct tokenval*)temp->children[1];//提取数组数量
       int array_num = atoi(token->nodevalue);
       addSymbol(&symbolTable,temp->children[0]->value,ARRAY_TYPE,array_num,"");
-      
+      for (int i =0; i<array_num; i++)
+      {
+         judgeType(array_type,temp->children[0]->value,i);
+      }   
       
    }
    else
@@ -405,12 +526,27 @@ void gen_code(struct ast* root)
     if (strcmp(nodetype, "ID") == 0) {
         printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
-        printf("%s\n",nodetype);
+      struct tokenval* token = (struct tokenval*)root;
+      if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
+      {
+         addSymbol(&constSymbolTable,token->nodevalue,INT_TYPE,-1," ");
+      }
+      printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "ASSIGNOP") == 0) {
         printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "CHAR_LITERAL") == 0) {
+      struct tokenval* token = (struct tokenval*)root;
+      if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
+      {
+         addSymbol(&constSymbolTable,token->nodevalue,CHAR_TYPE,-1," ");
+      }
         printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "FLOAT_LITERAL") == 0) {
+      struct tokenval* token = (struct tokenval*)root;
+      if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
+      {
+         addSymbol(&constSymbolTable,token->nodevalue,FLOAT_TYPE,-1," ");
+      }
         printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "STRING_LITERAL") == 0) {
         printf("%s\n",nodetype);

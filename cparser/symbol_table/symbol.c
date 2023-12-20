@@ -4,6 +4,7 @@
 #include <string.h>
 
 SymbolTable symbolTable;
+SymbolTable constSymbolTable;
 
 void initializeSymbolTable(SymbolTable* table) {
     table->count = 0;
@@ -39,3 +40,30 @@ void printfAllEntry(SymbolTable* table)
         printf("Name: %s\tType: %d\tIndex: %d\n", entry->name, entry->type, entry->index);
     }
 }
+
+DataType getType(SymbolTable* table, const char* name, int index) {
+    for (int i = 0; i < table->count; ++i) {
+        if ((strcmp(table->entries[i].name, name) == 0) && (table->entries[i].index == index)) {
+            return table->entries[i].type;
+        }
+    }
+
+    for (int i = 0; i < constSymbolTable.count; ++i) {
+        if ((strcmp(table->entries[i].name, name) == 0) && (table->entries[i].index == index)) {
+            return table->entries[i].type;
+        }
+    }
+
+    
+    return -1;
+}
+
+DataType getTypeArray(SymbolTable* table, const char* name) {
+    for (int i = 0; i < table->count; ++i) {
+        if ((strcmp(table->entries[i].name, name) == 0) ) {
+            return table->entries[i].type;
+        }
+    }
+    return -1;
+}
+
