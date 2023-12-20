@@ -11,6 +11,35 @@ char* int_to_cstar(int num);
 
 int temp_count =0;
 
+void judgeType(char *type,char* id,int index)
+{
+   if (strcmp(type, "int") == 0)
+      {
+         addSymbol(&symbolTable,id,INT_TYPE,index,"");
+
+      }
+      else if (strcmp(type, "float") == 0)
+      {
+          addSymbol(&symbolTable,id,FLOAT_TYPE,index,"");
+      }
+      else if (strcmp(type, "char") == 0)
+      {
+          addSymbol(&symbolTable,id,CHAR_TYPE,index,"");
+      }
+      else if (strcmp(type, "int*") == 0)
+      {
+          addSymbol(&symbolTable,id,INT_POINTER_TYPE,index,"");
+      }
+      else if (strcmp(type, "float*") == 0)
+      {
+          addSymbol(&symbolTable,id,FLOAT_POINTER_TYPE,index,"");
+      }
+      else if (strcmp(type, "char*") == 0)
+      {
+          addSymbol(&symbolTable,id,CHAR_POINTER_TYPE,index,"");
+      }
+}
+
 
 char* get_result(void)
 {
@@ -31,6 +60,7 @@ void gen_primary_expression(struct ast*node)
       {
          struct tokenval* token = (struct tokenval*)node->children[0];
          node->value = token->nodevalue;
+        
       }
       else
       {
@@ -87,7 +117,7 @@ void gen_assignment_expression(struct ast* node)
    else if (node->num_children == 4)
    {
       insert(node->children[2]->value,node->children[3]->value,"$",node->children[1]->value);
-     
+      judgeType(node->children[0]->value,node->children[1]->value,-1);
       
    }
 }
@@ -159,6 +189,7 @@ void gen_unary_expression(struct ast*node)
       {
          
             insert("ToAddress",node->children[1]->value,"$",result);
+
             
       }
       else if (strcmp(optype, "&") == 0)
@@ -282,6 +313,91 @@ void gen_else_statement(struct ast* node)
 
 }
 
+void gen_array(struct ast *node)
+{
+   gen_code(node->children[0]);
+   char * array_type = node->children[0]->value;
+   printf("!!!%s\n",array_type);
+   struct ast*temp = node->children[1]; //unary_expression
+   temp = temp->children[0]; //fisrt postfix
+   gen_code(temp->children[0]);//标识符读取
+   char * id_str = temp->children[0]->value;
+
+   temp = temp->children[1];
+   struct tokenval* token = (struct tokenval*)temp;//提取数组数量
+   int array_num = atoi(token->nodevalue);
+
+   //初始化记录数组
+   temp = node->children[3];
+   char ** array_all = (char**)malloc(sizeof (char*)*array_num);
+   
+   int count = array_num;
+   addSymbol(&symbolTable, id_str, ARRAY_TYPE, count, "");
+   
+   while(count >0)
+   {
+      count --;
+      
+      if(temp->num_children == 2)
+      {
+         gen_code(temp->children[1]);   
+         array_all[count] = temp->children[1]->value;
+         temp = temp->children[0];  
+
+      }
+      else
+      {
+         gen_code(temp->children[0]);
+         temp = temp->children[0];
+         array_all[count] = temp->value;
+      }
+      
+   }
+   for (int i =0; i<array_num; i++)
+   {
+      if(i==0)
+      {
+         char *result = get_result();
+         insert("ToAdress",id_str,"$",result);
+         insert("=",array_all[i],"$",result);
+         
+      }
+      else
+      {
+         char *result = get_result();
+         insert("+",id_str,int_to_cstar(i),result);
+         char *result1 = get_result();
+         insert("ToAdress",result,"$",result1);
+         insert("=",array_all[i],"$",result1);
+      }
+
+      judgeType(array_type,id_str,i);
+
+      
+   }
+}
+
+void gen_declaration(struct ast* node)
+{
+   gen_code(node->children[0]);
+   struct ast *temp = node->children[1];
+   if (strcmp(temp->children[0]->nodetype,"postfix_expression")==0 )
+   {
+      gen_code(temp->children[0]);
+      struct tokenval* token = (struct tokenval*)temp->children[1];//提取数组数量
+      int array_num = atoi(token->nodevalue);
+      addSymbol(&symbolTable,temp->children[0]->value,ARRAY_TYPE,array_num,"");
+      
+      
+   }
+   else
+   {
+      gen_code(node->children[0]);
+      gen_code(node->children[1]);
+      judgeType(node->children[0]->value,node->children[1]->value,-1);
+   }
+}
+
 void gen_code(struct ast* root)
 {
     char* nodetype = root->nodetype;
@@ -294,7 +410,9 @@ void gen_code(struct ast* root)
         printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "CHAR_LITERAL") == 0) {
         printf("%s\n",nodetype);
-    } else if (strcmp(nodetype, "STRING_LITERAL") == 0) {
+    } else if (strcmp(nodetype, "FLOAT_LITERAL") == 0) {
+        printf("%s\n",nodetype);
+    }else if (strcmp(nodetype, "STRING_LITERAL") == 0) {
         printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "TYPE") == 0) {
         printf("%s\n",nodetype);
@@ -400,66 +518,11 @@ void gen_code(struct ast* root)
          gen_condition_expression(root);
    }else if (strcmp(nodetype,"assignment_expression")==0 && root->num_children ==4&&strcmp(root->children[3]->nodetype,"primary_expression_list")==0)
    {
-      
-      struct ast*temp = root->children[1]; //unary_expression
-      temp = temp->children[0]; //fisrt postfix
-      gen_code(temp->children[0]);//标识符读取
-      char * id_str = temp->children[0]->value;
-
-      temp = temp->children[1];
-      struct tokenval* token = (struct tokenval*)temp;//提取数组数量
-      int array_num = atoi(token->nodevalue);
-
-      //初始化记录数组
-      temp = root->children[3];
-      char ** array_all = (char**)malloc(sizeof (char*)*array_num);
-      
-      int count = array_num;
-      
-      while(count >0)
-      {
-         count --;
-         
-         if(temp->num_children == 2)
-         {
-            gen_code(temp->children[1]);   
-            array_all[count] = temp->children[1]->value;
-            temp = temp->children[0];  
-
-         }
-         else
-         {
-            gen_code(temp->children[0]);
-            temp = temp->children[0];
-            array_all[count] = temp->value;
-         }
-         
-      }
-      for (int i =0; i<array_num; i++)
-      {
-         if(i==0)
-         {
-            char *result = get_result();
-            insert("ToAdress",id_str,"$",result);
-            insert("=",array_all[i],"$",result);
-
-         }
-         else
-         {
-            char *result = get_result();
-            insert("+",id_str,int_to_cstar(i),result);
-            char *result1 = get_result();
-            insert("ToAdress",result,"$",result1);
-            insert("=",array_all[i],"$",result1);
-         }
-        
-      }
-      
-
-      
-      
-      
-      
+      gen_array(root);
+   }
+   else if (strcmp(nodetype,"var_declaration")==0)
+   {
+      gen_declaration(root);
    }
     else
     {
@@ -476,13 +539,12 @@ void gen_code(struct ast* root)
             }
         }
         int flag = 0;
-        if (strcmp(nodetype,"primary_expression") ==0||strcmp(nodetype,"assignment_operator") ==0)
+        if (strcmp(nodetype,"primary_expression") ==0||strcmp(nodetype,"assignment_operator") ==0||strcmp(nodetype,"type_specifier") ==0)
         {
             //token值读取
             gen_primary_expression(root);
         }
-        else if (strcmp(nodetype,"program") !=0 && strcmp(nodetype,"external_declaration") !=0 &&strcmp(nodetype,"declaration_specifiers") !=0
-           && strcmp(nodetype,"type_specifier") !=0 && strcmp(nodetype,"params") !=0 && strcmp(nodetype,"param_list") !=0 
+        else if (strcmp(nodetype,"program") !=0 && strcmp(nodetype,"external_declaration") !=0 && strcmp(nodetype,"params") !=0 && strcmp(nodetype,"param_list") !=0 
            && strcmp(nodetype,"param") !=0&& strcmp(nodetype,"compound_statement") !=0&& strcmp(nodetype,"statement_list_opt") !=0 
            && strcmp(nodetype,"statement_list") !=0 && strcmp(nodetype,"statement_and_declaration") !=0 && strcmp(nodetype,"statement") !=0 
            && strcmp(nodetype,"call_statement") !=0 &&strcmp(nodetype,"jump_statement") !=0)

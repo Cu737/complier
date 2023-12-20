@@ -6,7 +6,10 @@ typedef enum {
     FLOAT_TYPE,
     CHAR_TYPE,
     ARRAY_TYPE,
-    POINTER_TYPE
+    INT_POINTER_TYPE,
+    FLOAT_POINTER_TYPE,
+    CHAR_POINTER_TYPE
+
 } DataType;
 
 typedef struct {

@@ -298,6 +298,8 @@ primary_expression:
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("ID", $1, @1.first_line));}
     | INT_LITERAL 
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("INT_LITERAL", $1, @1.first_line)); }
+    | FLOAT_LITERAL 
+    { $$ = newast("primary_expression", @1.first_line, 1, newtoken("FLOAT_LITERAL", $1, @1.first_line)); }
     | CHAR_LITERAL 
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("CHAR_LITERAL", $1, @1.first_line)); }
     | STRING_LITERAL 

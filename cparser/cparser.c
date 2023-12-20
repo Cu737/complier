@@ -61,6 +61,8 @@ void eval(struct ast *node, unsigned int depth)
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
         printNode(node, depth);
     }else if (strcmp(nodetype, "ASSIGNOP") == 0) {
+       printNode(node, depth);}
+    else if (strcmp(nodetype, "FLOAT_LITERAL") == 0) {
        printNode(node, depth);
     }else if (strcmp(nodetype, "CHAR_LITERAL") == 0) {
         printNode(node, depth);
