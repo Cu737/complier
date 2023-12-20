@@ -25,11 +25,14 @@ typedef struct {
 } SymbolTable;
 
 extern SymbolTable symbolTable;// 全局变量
+extern SymbolTable constSymbolTable;
 
 void initializeSymbolTable(SymbolTable* table);
 void addSymbol(SymbolTable* table, const char* name, DataType type, int index, char* value);
 SymbolEntry* findSymbol(SymbolTable* table, const char* name, DataType type, int index);
 void printfAllEntry(SymbolTable* table);
+DataType getType(SymbolTable* table, const char* name, int index);
+DataType getTypeArray(SymbolTable* table, const char* name);
 
 
 #endif
