@@ -35,7 +35,7 @@ void printfAllEntry(SymbolTable* table)
     int count = table->count;
     for (int i =0;i < count;i++)
     {
-        SymbolEntry* entry = table->entries[i];
+        SymbolEntry* entry = &(table->entries[i]);
         printf("Name: %s\tType: %d\tIndex: %d\n", entry->name, entry->type, entry->index);
     }
 }
