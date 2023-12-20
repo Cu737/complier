@@ -87,6 +87,7 @@ void gen_assignment_expression(struct ast* node)
    else if (node->num_children == 4)
    {
       insert(node->children[2]->value,node->children[3]->value,"$",node->children[1]->value);
+     
       
    }
 }

@@ -26,5 +26,7 @@ extern SymbolTable symbolTable;// 全局变量
 void initializeSymbolTable(SymbolTable* table);
 void addSymbol(SymbolTable* table, const char* name, DataType type, int index, char* value);
 SymbolEntry* findSymbol(SymbolTable* table, const char* name, DataType type, int index);
+void printfAllEntry(SymbolTable* table);
+
 
 #endif
