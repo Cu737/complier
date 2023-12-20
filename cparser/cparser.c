@@ -217,6 +217,8 @@ int main(int argc, char *argv[])
     
 
     printFourGroup();
+    printfAllEntry(&symbolTable);
+
     
 
     // Close the file
