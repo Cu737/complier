@@ -1,6 +1,7 @@
 #include "cparser.h"
 #include "./symbol_table/symbol.h"
 
+extern int error_flag;
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
@@ -214,16 +215,23 @@ int main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
+	if(error_flag == 0)
+	{
+		printf("test \n\n");
+	}
+	else {
+		printf("parse_error zjr \n\n");
+	}
     
 
     printFourGroup();
     printfAllEntry(&symbolTable);
 
     
-
     // Close the file
     fclose(input_file);
 
     return 0;
 }
+
 

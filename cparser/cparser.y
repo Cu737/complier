@@ -95,7 +95,7 @@ param:
 
 compound_statement:
     '{' statement_list_opt '}'
-    { $$ = newast("compound_statement", @1.first_line, 1, $2); }
+    { $$ = newast("compound_statement", @1.first_line, 1, $2); error_flag = 1; }
 
 statement_list_opt:
     /* empty */

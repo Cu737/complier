@@ -11,6 +11,7 @@ char* int_to_cstar(int num);
 
 int temp_count =0;
 
+int error_flag = 0;
 
 char* get_result(void)
 {
