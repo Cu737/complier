@@ -126,6 +126,7 @@ void gen_assignment_expression(struct ast* node)
             }
             else
             {
+               
                printf("%s and %s do not have the same type!\n",node->children[0]->value,node->children[2]->value);
             }
          }
@@ -182,6 +183,10 @@ void gen_additive_expression(struct ast*node)
       node->value = result;
       
       if(getType(&symbolTable,node->children[0]->value,-1) == getType(&symbolTable,node->children[2]->value,-1))
+      {
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
+      }
+      else if (getType(&symbolTable,node->children[0]->value,-1)>3 && getType(&symbolTable,node->children[2]->value,-1)==INT_TYPE)
       {
          addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
@@ -322,10 +327,11 @@ void gen_postfix_expression(struct ast* node)
    if (node->num_children ==2)
    {
       
-      char *result = get_result();
+      
       char * optype = node->children[1]->nodetype;
       if (strcmp(optype, "INC_OP") == 0)
       {
+         char *result = get_result();
          insert("=",node->children[0]->value,"$",result);
          insert("+",node->children[0]->value,"1",node->children[0]->value);
          node->value = result;
@@ -333,6 +339,7 @@ void gen_postfix_expression(struct ast* node)
       }
       else if(strcmp(optype, "DEC_OP") == 0)
       {
+         char *result = get_result();
          insert("=",node->children[0]->value,"$",result);
          insert("-",node->children[0]->value,"1",node->children[0]->value);
          node->value = result;
@@ -340,6 +347,7 @@ void gen_postfix_expression(struct ast* node)
       }
       else if (strcmp(optype,"INT_LITERAL") ==0)
       {
+         char *result = get_result();
          struct tokenval* token = (struct tokenval*)node->children[1];
          char *num = token->nodevalue;
          char *result1 = get_result();
@@ -549,6 +557,17 @@ void gen_code(struct ast* root)
       }
         //printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "STRING_LITERAL") == 0) {
+      struct tokenval* token = (struct tokenval*)root;
+      if (getType(&constSymbolTable,token->nodevalue,strlen((token->nodevalue))-2) == -1)
+      {
+         addSymbol(&constSymbolTable,token->nodevalue,ARRAY_TYPE,strlen((token->nodevalue))-2,"");
+         for (int i =1 ; i < strlen((token->nodevalue))-1;i++)
+         {
+            addSymbol(&constSymbolTable,token->nodevalue,CHAR_TYPE,i-1,"");
+         }
+      }
+      
+      
         //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "TYPE") == 0) {
         //printf("%s\n",nodetype);
