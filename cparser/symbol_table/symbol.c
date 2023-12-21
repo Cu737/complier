@@ -64,6 +64,11 @@ DataType getTypeArray(SymbolTable* table, const char* name) {
             return table->entries[i].type;
         }
     }
+    for (int i = 0; i < constSymbolTable.count; ++i) {
+        if ((strcmp(constSymbolTable.entries[i].name, name) == 0)) {
+            return constSymbolTable.entries[i].type;
+        }
+    }
     return -1;
 }
 
