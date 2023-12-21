@@ -1,6 +1,6 @@
 #include "cparser.h"
 #include "./symbol_table/symbol.h"
-
+#include "./code_optim/basic_block.h"
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
@@ -222,7 +222,11 @@ int main(int argc, char *argv[])
     printfAllEntry(&symbolTable);
     printfAllEntry(&constSymbolTable);
 
-    
+    // BasicBlock* basic_blocks;
+    // int num_blocks;
+    // generate_basic_blocks(head, FourGroupId - 1, &basic_blocks, &num_blocks);
+    // optimize_basic_blocks(basic_blocks, num_blocks);
+    // printFourGroup();
 
     // Close the file
     fclose(input_file);
