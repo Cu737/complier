@@ -190,9 +190,9 @@ void gen_additive_expression(struct ast*node)
       {
          addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
-      else if (getType(&symbolTable,node->children[0]->value,-1)>3 && getType(&symbolTable,node->children[2]->value,-1)>3)
+      else if (getType(&symbolTable,node->children[0]->value,-1)>2 && getType(&symbolTable,node->children[2]->value,-1)>2)
       {
-         printf("%s and %s are all pointer type!\n",node->children[0]->value,node->children[2]->value);
+         printf("%s and %s are all pointer or array type!\n",node->children[0]->value,node->children[2]->value);
          addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
       else
