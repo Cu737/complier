@@ -182,12 +182,17 @@ void gen_additive_expression(struct ast*node)
       
       node->value = result;
       
-      if(getType(&symbolTable,node->children[0]->value,-1) == getType(&symbolTable,node->children[2]->value,-1))
+      if(getType(&symbolTable,node->children[0]->value,-1)<4 && getType(&symbolTable,node->children[0]->value,-1) == getType(&symbolTable,node->children[2]->value,-1))
       {
          addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
       else if (getType(&symbolTable,node->children[0]->value,-1)>3 && getType(&symbolTable,node->children[2]->value,-1)==INT_TYPE)
       {
+         addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
+      }
+      else if (getType(&symbolTable,node->children[0]->value,-1)>3 && getType(&symbolTable,node->children[2]->value,-1)>3)
+      {
+         printf("%s and %s are all pointer type!\n",node->children[0]->value,node->children[2]->value);
          addSymbol(&symbolTable,result,getType(&symbolTable,node->children[0]->value,-1),-1,"");
       }
       else
