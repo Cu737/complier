@@ -433,7 +433,7 @@ void gen_array(struct ast *node)
 {
    gen_code(node->children[0]);
    char * array_type = node->children[0]->value;
-   printf("!!!%s\n",array_type);
+   // printf("!!!%s\n",array_type);
    struct ast*temp = node->children[1]; //unary_expression
    temp = temp->children[0]; //fisrt postfix
    gen_code(temp->children[0]);//标识符读取
@@ -522,123 +522,123 @@ void gen_declaration(struct ast* node)
 void gen_code(struct ast* root)
 {
     char* nodetype = root->nodetype;
-    printf("%s\n", nodetype);
+    //printf("%s\n", nodetype);
     if (strcmp(nodetype, "ID") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
       struct tokenval* token = (struct tokenval*)root;
       if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
       {
          addSymbol(&constSymbolTable,token->nodevalue,INT_TYPE,-1," ");
       }
-      printf("%s\n",nodetype);
+      //printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "ASSIGNOP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "CHAR_LITERAL") == 0) {
       struct tokenval* token = (struct tokenval*)root;
       if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
       {
          addSymbol(&constSymbolTable,token->nodevalue,CHAR_TYPE,-1," ");
       }
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "FLOAT_LITERAL") == 0) {
       struct tokenval* token = (struct tokenval*)root;
       if (getType(&constSymbolTable,token->nodevalue,-1) == -1)
       {
          addSymbol(&constSymbolTable,token->nodevalue,FLOAT_TYPE,-1," ");
       }
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     }else if (strcmp(nodetype, "STRING_LITERAL") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "TYPE") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "SIZEOF") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "OR_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "AND_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "EQ_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "IF") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "ELSE") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "LE_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "GE_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "LEFT_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "RIGHT_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "INC_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "DEC_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "PTR_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "WHILE") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "FOR") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "GOTO") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "CONTINUE") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "BREAK") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "RETURN") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "(") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, ")") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "[") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "]") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "{") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "}") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, ".") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "L_OP") == 0) {
-        printf("%s\n",nodetype);
+        //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "G_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "ADD_OP") == 0) {
-       printf("%s\n",nodetype);
+      // printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "MINUS_OP") == 0) {
-        printf("%s\n",nodetype);
+       // printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "MUL_OP") == 0) {
-       printf("%s\n",nodetype);
+      // printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "DIV_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "QUESTION_MARK") == 0) {
-       printf("%s\n",nodetype);
+      // printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "YES_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "NO_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "COLON") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "PIPE") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "CARET") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "AMPERSAND") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "NE_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "SUB_OP") == 0) {
-       printf("%s\n",nodetype);
+      // printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "REMAIN_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
 	}
    else if (strcmp(nodetype, "STAR_OP") == 0) {
-       printf("%s\n",nodetype);
+       //printf("%s\n",nodetype);
 	}
    else if (strcmp(nodetype, "iteration_statement") == 0) {
        gen_iteration_statement(root);
@@ -718,7 +718,7 @@ void gen_code(struct ast* root)
                   gen_additive_expression(root);
             }     
       }    
-        printf("%zu -*%s: %u  (%s)\n",root ->num_children,root->nodetype,root->line_num,root->value);
+      //   printf("%zu -*%s: %u  (%s)\n",root ->num_children,root->nodetype,root->line_num,root->value);
     }
     
 }

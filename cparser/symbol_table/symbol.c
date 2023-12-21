@@ -49,8 +49,8 @@ DataType getType(SymbolTable* table, const char* name, int index) {
     }
 
     for (int i = 0; i < constSymbolTable.count; ++i) {
-        if ((strcmp(table->entries[i].name, name) == 0) && (table->entries[i].index == index)) {
-            return table->entries[i].type;
+        if ((strcmp(constSymbolTable.entries[i].name, name) == 0) && (constSymbolTable.entries[i].index == index)) {
+            return constSymbolTable.entries[i].type;
         }
     }
 
