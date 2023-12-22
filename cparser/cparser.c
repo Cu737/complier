@@ -1,7 +1,9 @@
 #include "cparser.h"
+#include "stdio.h"
 #include "./symbol_table/symbol.h"
 
 extern int error_flag;
+extern void print_error();
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
@@ -189,7 +191,9 @@ void yyerror(char *s, ...)
     va_list ap;
     va_start(ap, s);
 
-    fprintf(stderr, "%d: error:", yylineno);
+    printf("%s\n",s);
+
+    fprintf(stderr, "line %d | error:", yylineno);
     vfprintf(stderr, s, ap);
     fprintf(stderr, "\n");
 }
@@ -215,18 +219,18 @@ int main(int argc, char *argv[])
     // Call the parser
     yyparse();
 
-	if(error_flag == 0)
-	{
-		printf("test \n\n");
-	}
-	else {
-		printf("parse_error zjr \n\n");
-	}
-    
-
     printFourGroup();
     printfAllEntry(&symbolTable);
 
+
+	if(error_flag == 0)
+	{
+		printf("test \n\n");
+	} else {
+        print_error();
+		printf("parse_error zjr hhhhhh \n\n");
+	}
+    
     
     // Close the file
     fclose(input_file);

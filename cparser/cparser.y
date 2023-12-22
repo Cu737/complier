@@ -1,6 +1,9 @@
 %{
 #include "generate.h"
+
 %}
+
+%locations
 
 %union {
     struct ast *a;
@@ -95,7 +98,10 @@ param:
 
 compound_statement:
     '{' statement_list_opt '}'
-    { $$ = newast("compound_statement", @1.first_line, 1, $2); error_flag = 1; }
+    { $$ = newast("compound_statement", @1.first_line, 1, $2); }
+    |
+    error
+    { ErrorMessage(1,"}","",yylineno);error_flag=1;}
 
 statement_list_opt:
     /* empty */
@@ -142,6 +148,8 @@ expression_statement:
     { $$ = NULL; }
     | expression ';' 
     { $$ = newast("expression_statement", $1->line_num, 1, $1); }
+    | expression error
+    { $$ = newast("expression_statement", $1->line_num, 1, $1);ErrorMessage(1,";","",yylineno),error_flag=1;}
 
 expression:
     assignment_expression 
@@ -233,15 +241,30 @@ additive_expression:
     multiplicative_expression 
     { $$ = newast("additive_expression", $1->line_num, 1, $1); }
     | additive_expression '+' multiplicative_expression 
-    { $$ = newast("additive_expression", $1->line_num, 3, $1, newtoken("ADD_OP", $2, @2.first_line), $3); }
+    { $$ = newast("additive_expression", $1->line_num, 3, $1, newtoken("ADD_OP", $2, @2.first_line), $3);
+    // if($1->nodetype!=$3->nodetype)
+    // {
+    //     ErrorMessage(4,$2,"",yylineno);
+    //     error_flag=1;
+    // };
+    // error_flag=1; 
+    }
     | additive_expression '-' multiplicative_expression 
-    { $$ = newast("additive_expression", $1->line_num, 3, $1,newtoken("SUB_OP", $2, @2.first_line), $3); }
+    { $$ = newast("additive_expression", $1->line_num, 3, $1,newtoken("SUB_OP", $2, @2.first_line), $3); 
+    //  if($1->nodetype!=$3->nodetype)
+    // {
+    //     ErrorMessage(4,$2,"",yylineno);
+    //     error_flag=1;
+    // };
+    // error_flag=1; 
+    }
 
 multiplicative_expression:
     cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 1, $1); }
     | multiplicative_expression STAR_OP cast_expression 
-    { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("MUL_OP", $2, @2.first_line), $3); }
+    { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("MUL_OP", $2, @2.first_line), $3);
+     }
     | multiplicative_expression '/' cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("DIV_OP", $2, @2.first_line), $3); }
     | multiplicative_expression '%' cast_expression 
@@ -331,15 +354,23 @@ else_statement:
     { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7); }
 
 iteration_statement:
-    WHILE '(' expression ')' statement 
+    WHILE '(' expression ')' statement
     { $$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); }
     | FOR '(' expression_statement expression_statement expression ')' statement 
     { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); }
     | FOR '(' var_declaration expression_statement expression ')' statement 
     { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); }
+    | WHILE error expression ')' statement
+    {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
+    ErrorMessage(1,"(","",$3->line_num);
+    error_flag=1;}
+    | WHILE '(' expression error statement
+    {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
+    ErrorMessage(1,")","",$3->line_num);
+    error_flag=1;}
 
 jump_statement:
-      GOTO ID  ';' 
+    GOTO ID  ';' 
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("GOTO", $1, @1.first_line), newtoken("ID", $2, @2.first_line)); }
     | CONTINUE ';' 
     { $$ = newast("jump_statement", @1.first_line, 1, newtoken("CONTINUE", $1, @1.first_line)); }
@@ -350,8 +381,5 @@ jump_statement:
     | RETURN expression ';' 
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("RETURN", $1, @1.first_line), $2); }
 
+    
 %%
-
-
-
-

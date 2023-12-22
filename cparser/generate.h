@@ -1,17 +1,20 @@
 #include "quadruples.h"
 #include "cparser.h"
 #include "./symbol_table/symbol.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
 void gen_code(struct ast* root);
 char* int_to_cstar(int num);
+void ErrorMessage(int type, const char* arg1, const char* arg2, int line);
 
-int temp_count =0;
+int temp_count=0;
 
 int error_flag = 0;
+int cntt=0;
+char error_str[128][128];
 
 char* get_result(void)
 {
@@ -284,9 +287,9 @@ void gen_else_statement(struct ast* node)
 }
 
 void gen_code(struct ast* root)
-{
+{  
     char* nodetype = root->nodetype;
-    printf("%s\n", nodetype);
+   //  printf("%s\n", nodetype);
     if (strcmp(nodetype, "ID") == 0) {
         printf("%s\n",nodetype);
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
@@ -521,8 +524,30 @@ void gen_code(struct ast* root)
                   gen_additive_expression(root);
             }     
       }    
-        printf("%zu -*%s: %u  (%s)\n",root ->num_children,root->nodetype,root->line_num,root->value);
+      //   printf("%zu -*%s: %u  (%s)\n",root ->num_children,root->nodetype,root->line_num,root->value);
     }
     
 }
 
+
+
+void ErrorMessage(int type, const char *arg1, const char *arg2, int line){
+   printf("this is insertError!\n");
+   printf("%d", type);
+   switch (type)
+   {  
+   case 1:
+      sprintf(error_str[cntt++],"❌ ERROR : need a \"%s\" in \033[44mline %d\033[0m\n", arg1, line);
+      break;
+   case 2:
+      sprintf(error_str[cntt++],"❌ TYPE ERROR : Inconsistent types on either side of the symbol %s in \033[44mline %d\033[0m\n", arg1, line);
+      break;
+   default:
+      break;
+   
+}
+}
+
+void print_error(){
+   printf("\033[31m%s\033[0m", error_str[0]);
+}

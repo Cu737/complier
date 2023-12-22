@@ -13,8 +13,9 @@
 extern int yylineno; /* from lexer */
 extern int yylex(void);
 extern int yyparse(void);
+extern void yyset_in(FILE* in);
 
-void yyerror(char *s, ...);
+void yyerror(char *s, ...); 
 
 /* nodes in the abstract syntax tree */
 struct ast {
@@ -23,9 +24,6 @@ struct ast {
     size_t num_children;
     struct ast **children;
     char * value;
-
-        
-
 };
 
 struct tokenval{
