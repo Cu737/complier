@@ -14,6 +14,8 @@ int now_scope = 1;
 int next=0;
 int outputtedIdentifiers[100] = {0};
 
+
+
 %}
 
 
@@ -162,5 +164,5 @@ commentend "*/"
 "^" {yylval.c = strdup(yytext); return '^';}
 "->" {yylval.c = strdup(yytext); return PTR_OP;}
 "." {yylval.c = strdup(yytext); return '.';}
-. { yyerror("Mystery character %c\n",*yytext); }
+. { yyerror("Mystery character %c\n",*yytext); error_flag=1;}
 %%

@@ -1,5 +1,11 @@
 #include "cparser.h"
+#include "stdio.h"
 #include "./symbol_table/symbol.h"
+
+extern void print_error();
+int error_flag=0;
+int cntt=0;
+char error_str[128][128];
 #include "./code_optim/basic_block.h"
 
 struct ast *
@@ -187,12 +193,35 @@ void printNode(struct ast *node, unsigned int depth) {
 
 void yyerror(char *s, ...)
 {
-    va_list ap;
-    va_start(ap, s);
+   va_list ap;
+   va_start(ap, s);
+   sprintf(error_str[cntt++], "❌ \033[31mERROR : %s in \033[44mline %d\033[0m\n",s,yylineno);
 
-    fprintf(stderr, "%d: error:", yylineno);
-    vfprintf(stderr, s, ap);
-    fprintf(stderr, "\n");
+}
+
+void ErrorMessage(int type, const char *arg1, const char *arg2, int line){
+   printf("this is insertError!\n");
+   printf("%d", type);
+   switch (type)
+   {  
+   case 1:
+      sprintf(error_str[cntt++],"❌ ERROR : need a \"%s\" in \033[44mline %d\033[0m\n", arg1, line);
+      break;
+   case 2:
+      sprintf(error_str[cntt++],"❌ TYPE ERROR : Inconsistent types on either side of the symbol %s in \033[44mline %d\033[0m\n", arg1, line);
+      break;
+   default:
+      break;
+   
+}
+}
+
+void print_error(){
+   printf("\033[31m%s\033[0m", error_str[0]);
+   if(cntt > 0){
+      printf("\033[31m%s\033[0m", error_str[1]);
+   }
+   
 }
 
 int main(int argc, char *argv[])
@@ -213,10 +242,14 @@ int main(int argc, char *argv[])
 
     initializeSymbolTable(&symbolTable);
 
-    // Call the parser
-    yyparse();
+   //  if (yyparse() != 0) {
+   //      // 解析失败
+   //      print_error();
+   //      fclose(input_file);
+   //      return 0;
+   //  }
 
-    
+   yyparse();
 
     printFourGroup();
     printfAllEntry(&symbolTable);
@@ -227,10 +260,20 @@ int main(int argc, char *argv[])
     // generate_basic_blocks(head, FourGroupId - 1, &basic_blocks, &num_blocks);
     // optimize_basic_blocks(basic_blocks, num_blocks);
     // printFourGroup();
-
+    
+	if(error_flag == 0)
+	{
+		printf("test \n\n");
+	} else {
+      print_error();
+		printf("parse_error zjr hhhhhh \n\n");
+	}
+    
+    
     // Close the file
     fclose(input_file);
 
     return 0;
 }
+
 

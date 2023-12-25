@@ -1,5 +1,11 @@
-cparser/case2.c
+cparser/case*.c
 cparser/cparser
 cparser/cparser.lex.c
 cparser/cparser.tab.c
 cparser/cparser.tab.h
+
+
+cparser/output
+test
+.vscode/settings.json
+wqx.y

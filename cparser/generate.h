@@ -1,15 +1,17 @@
 #include "quadruples.h"
 #include "cparser.h"
 #include "./symbol_table/symbol.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
 void gen_code(struct ast* root);
 char* int_to_cstar(int num);
+void ErrorMessage(int type, const char* arg1, const char* arg2, int line);
 
-int temp_count =0;
+int temp_count=0;
+
 
 void judgeType(char *type,char* id,int index)
 {
@@ -533,7 +535,7 @@ void gen_declaration(struct ast* node)
 }
 
 void gen_code(struct ast* root)
-{
+{  
     char* nodetype = root->nodetype;
     //printf("%s\n", nodetype);
     if (strcmp(nodetype, "ID") == 0) {
@@ -746,4 +748,6 @@ void gen_code(struct ast* root)
     }
     
 }
+
+
 
