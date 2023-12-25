@@ -6,6 +6,7 @@ extern void print_error();
 int error_flag=0;
 int cntt=0;
 char error_str[128][128];
+#include "./code_optim/basic_block.h"
 
 struct ast *
 newast(char* nodetype, unsigned int line_num, size_t num_children, ...)
@@ -66,6 +67,8 @@ void eval(struct ast *node, unsigned int depth)
     } else if (strcmp(nodetype, "INT_LITERAL") == 0) {
         printNode(node, depth);
     }else if (strcmp(nodetype, "ASSIGNOP") == 0) {
+       printNode(node, depth);}
+    else if (strcmp(nodetype, "FLOAT_LITERAL") == 0) {
        printNode(node, depth);
     }else if (strcmp(nodetype, "CHAR_LITERAL") == 0) {
         printNode(node, depth);
@@ -250,8 +253,14 @@ int main(int argc, char *argv[])
 
     printFourGroup();
     printfAllEntry(&symbolTable);
+    printfAllEntry(&constSymbolTable);
 
-
+    // BasicBlock* basic_blocks;
+    // int num_blocks;
+    // generate_basic_blocks(head, FourGroupId - 1, &basic_blocks, &num_blocks);
+    // optimize_basic_blocks(basic_blocks, num_blocks);
+    // printFourGroup();
+    
 	if(error_flag == 0)
 	{
 		printf("test \n\n");

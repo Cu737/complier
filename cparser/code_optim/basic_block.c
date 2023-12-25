@@ -307,7 +307,7 @@ void test3(){
     insert("=","3","$","temp4");
 }
 
-int main() {
+int main1() {
 
     test3();
     
