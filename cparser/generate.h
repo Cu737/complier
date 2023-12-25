@@ -12,9 +12,7 @@ void ErrorMessage(int type, const char* arg1, const char* arg2, int line);
 
 int temp_count=0;
 
-int error_flag = 0;
-int cntt=0;
-char error_str[128][128];
+
 
 char* get_result(void)
 {
@@ -531,23 +529,3 @@ void gen_code(struct ast* root)
 
 
 
-void ErrorMessage(int type, const char *arg1, const char *arg2, int line){
-   printf("this is insertError!\n");
-   printf("%d", type);
-   switch (type)
-   {  
-   case 1:
-      sprintf(error_str[cntt++],"❌ ERROR : need a \"%s\" in \033[44mline %d\033[0m\n", arg1, line);
-      break;
-   case 2:
-      sprintf(error_str[cntt++],"❌ TYPE ERROR : Inconsistent types on either side of the symbol %s in \033[44mline %d\033[0m\n", arg1, line);
-      break;
-   default:
-      break;
-   
-}
-}
-
-void print_error(){
-   printf("\033[31m%s\033[0m", error_str[0]);
-}

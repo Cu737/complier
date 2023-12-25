@@ -15,6 +15,8 @@ extern int yylex(void);
 extern int yyparse(void);
 extern void yyset_in(FILE* in);
 
+extern int error_flag ;
+
 void yyerror(char *s, ...); 
 
 /* nodes in the abstract syntax tree */

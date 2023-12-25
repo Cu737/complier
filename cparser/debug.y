@@ -1,6 +1,9 @@
 %{
 #include "generate.h"
+
 %}
+
+%locations
 
 %union {
     struct ast *a;
@@ -55,14 +58,14 @@ var_declaration:
     { 
         $$ = newast("var_declaration", $1->line_num, 2, $1, $2);
     }
-    | declaration_specifiers STAR_OP ID ';'
-    { $$ = newast("var_declaration", $1->line_num, 3, $1, newtoken("STAR_OP", $2, @2.first_line), newtoken("ID", $3, @3.first_line));} //modify
     |    declaration_specifiers postfix_expression 
     { 
         $$ = newast("var_declaration", $1->line_num, 2, $1, $2);
         ErrorMessage(1,";","",yylineno);
         error_flag=1;
     }
+    | declaration_specifiers STAR_OP ID ';'
+    { $$ = newast("var_declaration", $1->line_num, 3, $1, newtoken("STAR_OP", $2, @2.first_line), newtoken("ID", $3, @3.first_line));} //modify
     |    declaration_specifiers STAR_OP ID error
     { 
         $$ = newast("var_declaration", $1->line_num, 3, $1, newtoken("STAR_OP", $2, @2.first_line), newtoken("ID", $3, @3.first_line));
@@ -70,7 +73,6 @@ var_declaration:
         error_flag=1;
     }
 
-    
 declaration_specifiers:
     type_specifier 
     { $$ = newast("declaration_specifiers", $1->line_num, 1, $1); }
@@ -109,8 +111,9 @@ param:
 compound_statement:
     '{' statement_list_opt '}'
     { $$ = newast("compound_statement", @1.first_line, 1, $2); }
-    | error
-    { ErrorMessage(1,"}","",yylineno) ;error_flag=1; }
+    |
+    error
+    { ErrorMessage(1,"}","",yylineno);error_flag=1;}
 
 statement_list_opt:
     /* empty */
@@ -147,19 +150,22 @@ statement:
     { $$ = newast("statement", $1->line_num, 1, $1); }
     
 
+
+
 call_statement:
     ID '(' params ')' ';'
-     { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); }
-    |ID '(' params error ';'
-    { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); 
-     ErrorMessage(1,")","",$3->line_num);
-     error_flag=1;
-     }
-    |    ID '(' params ')' error
-     { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); 
-     ErrorMessage(1,";","",$3->line_num);
-     error_flag=1;
-     }
+    { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); }
+    |    
+    // ID '(' params error ';'
+    // { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); 
+    //  ErrorMessage(1,")","",$3->line_num);
+    //  error_flag=1;
+    //  }
+    // |    ID '(' params ')' error
+    //  { $$ = newast("call_statement", @1.first_line, 2, newtoken("ID", $1, @1.first_line), $3); 
+    //  ErrorMessage(1,";","",$3->line_num);
+    //  error_flag=1;
+    //  }
 
 
 expression_statement:
@@ -260,15 +266,30 @@ additive_expression:
     multiplicative_expression 
     { $$ = newast("additive_expression", $1->line_num, 1, $1); }
     | additive_expression '+' multiplicative_expression 
-    { $$ = newast("additive_expression", $1->line_num, 3, $1, newtoken("ADD_OP", $2, @2.first_line), $3); }
+    { $$ = newast("additive_expression", $1->line_num, 3, $1, newtoken("ADD_OP", $2, @2.first_line), $3);
+    // if($1->nodetype!=$3->nodetype)
+    // {
+    //     ErrorMessage(4,$2,"",yylineno);
+    //     error_flag=1;
+    // };
+    // error_flag=1; 
+    }
     | additive_expression '-' multiplicative_expression 
-    { $$ = newast("additive_expression", $1->line_num, 3, $1,newtoken("SUB_OP", $2, @2.first_line), $3); }
+    { $$ = newast("additive_expression", $1->line_num, 3, $1,newtoken("SUB_OP", $2, @2.first_line), $3); 
+    //  if($1->nodetype!=$3->nodetype)
+    // {
+    //     ErrorMessage(4,$2,"",yylineno);
+    //     error_flag=1;
+    // };
+    // error_flag=1; 
+    }
 
 multiplicative_expression:
     cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 1, $1); }
     | multiplicative_expression STAR_OP cast_expression 
-    { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("MUL_OP", $2, @2.first_line), $3); }
+    { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("MUL_OP", $2, @2.first_line), $3);
+     }
     | multiplicative_expression '/' cast_expression 
     { $$ = newast("multiplicative_expression", $1->line_num, 3, $1, newtoken("DIV_OP", $2, @2.first_line), $3); }
     | multiplicative_expression '%' cast_expression 
@@ -279,16 +300,16 @@ cast_expression:
     { $$ = newast("cast_expression", $1->line_num, 1, $1); }
     | '(' TYPE ')' cast_expression 
     { $$ = newast("cast_expression", @1.first_line, 2, newtoken("TYPE", $2, @2.first_line), $4);}
-    | '(' TYPE error cast_expression 
-    { $$ = newast("cast_expression", @1.first_line, 2, newtoken("TYPE", $2, @2.first_line), $4);
-    ErrorMessage(1,")","",yylineno);
-    error_flag=1;
-    }
-    | error TYPE ')' cast_expression 
-    { $$ = newast("cast_expression", @1.first_line, 2, newtoken("TYPE", $2, @2.first_line), $4);
-    ErrorMessage(1,"(","",yylineno);
-    error_flag=1;
-    }
+    // | '(' TYPE error cast_expression 
+    // { $$ = newast("cast_expression", @1.first_line, 2, newtoken("TYPE", $2, @2.first_line), $4);
+    // ErrorMessage(1,")","",yylineno);
+    // error_flag=1;
+    // }
+    // | error TYPE ')' cast_expression 
+    // { $$ = newast("cast_expression", @1.first_line, 2, newtoken("TYPE", $2, @2.first_line), $4);
+    // ErrorMessage(1,"(","",yylineno);
+    // error_flag=1;
+    // }
 
 unary_expression:
     postfix_expression 
@@ -335,8 +356,6 @@ primary_expression:
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("ID", $1, @1.first_line));}
     | INT_LITERAL 
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("INT_LITERAL", $1, @1.first_line)); }
-    | FLOAT_LITERAL 
-    { $$ = newast("primary_expression", @1.first_line, 1, newtoken("FLOAT_LITERAL", $1, @1.first_line)); }
     | CHAR_LITERAL 
     { $$ = newast("primary_expression", @1.first_line, 1, newtoken("CHAR_LITERAL", $1, @1.first_line)); }
     | STRING_LITERAL 
@@ -360,121 +379,119 @@ argument_expression_list:
 selection_statement:
     IF '(' expression ')' compound_statement 
     { $$ = newast("selection_statement", @1.first_line, 3, newtoken("IF", $1, @1.first_line), $3, $5); }
-    | IF '(' expression ')' compound_statement else_statement 
-    { $$ = newast("selection_statement", @1.first_line, 4, newtoken("IF", $1, @1.first_line), $3, $5, $6); }
-    |    IF error expression ')' compound_statement 
-    { $$ = newast("selection_statement", @1.first_line, 3, newtoken("IF", $1, @1.first_line), $3, $5); 
-    ErrorMessage(1,"(","", @1.first_line);
-    error_flag=1;
-    }
-    |    IF '(' expression error compound_statement 
-    { $$ = newast("selection_statement", @1.first_line, 3, newtoken("IF", $1, @1.first_line), $3, $5); 
-    ErrorMessage(1,")","", @1.first_line);
-    error_flag=1;
-    }
-    | IF error expression ')' compound_statement else_statement 
-    { $$ = newast("selection_statement", @1.first_line, 4, newtoken("IF", $1, @1.first_line), $3, $5, $6); 
-    ErrorMessage(1,"(","", @1.first_line);
-    error_flag=1;
-    }
-    | IF '(' expression error compound_statement else_statement 
-    { $$ = newast("selection_statement", @1.first_line, 4, newtoken("IF", $1, @1.first_line), $3, $5, $6); 
-    ErrorMessage(1,")","", @1.first_line);
-    error_flag=1;
-    }
+    // |    IF error expression ')' compound_statement 
+    // { $$ = newast("selection_statement", @1.first_line, 3, newtoken("IF", $1, @1.first_line), $3, $5); 
+    // ErrorMessage(1,"(","", @1.first_line);
+    // error_flag=1;
+    // }
+    // |    IF '(' expression error compound_statement 
+    // { $$ = newast("selection_statement", @1.first_line, 3, newtoken("IF", $1, @1.first_line), $3, $5); 
+    // ErrorMessage(1,")","", @1.first_line);
+    // error_flag=1;
+    // }
+    // | IF error expression ')' compound_statement else_statement 
+    // { $$ = newast("selection_statement", @1.first_line, 4, newtoken("IF", $1, @1.first_line), $3, $5, $6); 
+    // ErrorMessage(1,"(","", @1.first_line);
+    // error_flag=1;
+    // }
+    // | IF '(' expression error compound_statement else_statement 
+    // { $$ = newast("selection_statement", @1.first_line, 4, newtoken("IF", $1, @1.first_line), $3, $5, $6); 
+    // ErrorMessage(1,")","", @1.first_line);
+    // error_flag=1;
+    // }
+    
     
 else_statement:
     ELSE compound_statement
     { $$ = newast("else_statement", @1.first_line, 2, newtoken("ELSE", $1, @1.first_line), $2); }
     | ELSE IF '(' expression ')' compound_statement else_statement
-    { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7); }
-    | ELSE IF error expression ')' compound_statement else_statement
-    { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7);
-    ErrorMessage(1,"(","", @4.first_line);
-    error_flag=1;
-     }
-    | ELSE IF '(' expression error compound_statement else_statement
-    { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7); 
-    ErrorMessage(1,")","", @4.first_line);
-    error_flag=1;
-    }
+    { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7); } 
+    
+    // | ELSE IF error expression ')' compound_statement else_statement
+    // { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7);
+    // ErrorMessage(1,"(","", @4.first_line);
+    // error_flag=1;
+    //  }
+    // | ELSE IF '(' expression error compound_statement else_statement
+    // { $$ = newast("else_statement", @1.first_line, 5, newtoken("ELSE", $1, @1.first_line), newtoken("IF", $2, @2.first_line), $4, $6, $7); 
+    // ErrorMessage(1,")","", @4.first_line);
+    // error_flag=1;
+    // }
 
 iteration_statement:
-    WHILE '(' expression ')' statement 
+    WHILE '(' expression ')' statement
     { $$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); }
     | FOR '(' expression_statement expression_statement expression ')' statement 
     { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); }
     | FOR '(' var_declaration expression_statement expression ')' statement 
     { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); }
-    | WHILE error expression ')' statement
-    {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
-    ErrorMessage(1,"(","",$3->line_num);
-    error_flag=1;}
-    | WHILE '(' expression error statement
-    {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
-    ErrorMessage(1,")","",$3->line_num);
-    error_flag=1;}
+    // | WHILE error expression ')' statement
+    // {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
+    // ErrorMessage(1,"(","",$3->line_num);
+    // error_flag=1;}
+    // | WHILE '(' expression error statement
+    // {$$ = newast("iteration_statement", @1.first_line, 3, newtoken("WHILE", $1, @1.first_line), $3, $5); 
+    // ErrorMessage(1,")","",$3->line_num);
+    // error_flag=1;}
     
-    | FOR error expression_statement expression_statement expression ')' statement 
-    { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); 
-    ErrorMessage(1,"(","",$3->line_num);
-    error_flag=1;
-    }
-    | FOR '('expression_statement expression_statement expression error statement 
-    { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); 
-    ErrorMessage(1,")","",$3->line_num);
-    error_flag=1;
-    }
-    | FOR error var_declaration expression_statement expression ')' statement 
-    { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7);
-    ErrorMessage(1,"(","",$3->line_num);
-    error_flag=1;
-     }
-    | FOR '(' var_declaration expression_statement expression error statement 
-    { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7);
-    ErrorMessage(1,")","",$3->line_num);
-    error_flag=1;
-     }
+    // | FOR error expression_statement expression_statement expression ')' statement 
+    // { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); 
+    // ErrorMessage(1,"(","",$3->line_num);
+    // error_flag=1;
+    // }
+    // | FOR '('expression_statement expression_statement expression error statement 
+    // { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7); 
+    // ErrorMessage(1,")","",$3->line_num);
+    // error_flag=1;
+    // }
+    // | FOR error var_declaration expression_statement expression ')' statement 
+    // { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7);
+    // ErrorMessage(1,"(","",$3->line_num);
+    // error_flag=1;
+    //  }
+    // | FOR '(' var_declaration expression_statement expression error statement 
+    // { $$ = newast("iteration_statement", @1.first_line, 5, newtoken("FOR", $1, @1.first_line), $3, $4, $5, $7);
+    // ErrorMessage(1,")","",$3->line_num);
+    // error_flag=1;
+    //  }
+
 
 jump_statement:
     GOTO ID  ';' 
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("GOTO", $1, @1.first_line), newtoken("ID", $2, @2.first_line)); }
-    |GOTO ID  error
-    { $$ = newast("jump_statement", @1.first_line, 2, newtoken("GOTO", $1, @1.first_line), newtoken("ID", $2, @2.first_line));
-    ErrorMessage(1,";","",yylineno);
-    error_flag=1;
-     }
+    // |GOTO ID  error
+    // { $$ = newast("jump_statement", @1.first_line, 2, newtoken("GOTO", $1, @1.first_line), newtoken("ID", $2, @2.first_line));
+    // ErrorMessage(1,";","",yylineno);
+    // error_flag=1;
+    //  }
     | CONTINUE ';' 
     { $$ = newast("jump_statement", @1.first_line, 1, newtoken("CONTINUE", $1, @1.first_line)); }
-    | CONTINUE error
-    { $$ = newast("jump_statement", @1.first_line, 1, newtoken("CONTINUE", $1, @1.first_line));
-    ErrorMessage(1,";","",@1.first_line);
-    error_flag=1;
-     }
+    // | CONTINUE error
+    // { $$ = newast("jump_statement", @1.first_line, 1, newtoken("CONTINUE", $1, @1.first_line));
+    // ErrorMessage(1,";","",@1.first_line);
+    // error_flag=1;
+    //  }
     | BREAK ';' 
     { $$ = newast("jump_statement", @1.first_line, 1, newtoken("BREAK", $1, @1.first_line)); }
-    | BREAK error 
-    { $$ = newast("jump_statement", @1.first_line, 1, newtoken("BREAK", $1, @1.first_line));
-    ErrorMessage(1,";","",@1.first_line);
-    error_flag=1;
-     }
+    // | BREAK error 
+    // { $$ = newast("jump_statement", @1.first_line, 1, newtoken("BREAK", $1, @1.first_line));
+    // ErrorMessage(1,";","",@1.first_line);
+    // error_flag=1;
+    //  }
     | RETURN ';' 
     { $$ = newast("jump_statement", @1.first_line, 1, newtoken("RETURN", $1, @1.first_line)); }
-    | RETURN error 
-    { $$ = newast("jump_statement", @1.first_line, 1, newtoken("RETURN", $1, @1.first_line));
-    ErrorMessage(1,";","",@1.first_line);
-    error_flag=1;   
-    }
+    // | RETURN error 
+    // { $$ = newast("jump_statement", @1.first_line, 1, newtoken("RETURN", $1, @1.first_line));
+    // ErrorMessage(1,";","",@1.first_line);
+    // error_flag=1;   
+    // }
     | RETURN expression ';' 
     { $$ = newast("jump_statement", @1.first_line, 2, newtoken("RETURN", $1, @1.first_line), $2); }
-    | RETURN expression error 
-    { $$ = newast("jump_statement", @1.first_line, 2, newtoken("RETURN", $1, @1.first_line), $2);
-    ErrorMessage(1,";","",@1.first_line);
-    error_flag=1;
-    }
+    // | RETURN expression error 
+    // { $$ = newast("jump_statement", @1.first_line, 2, newtoken("RETURN", $1, @1.first_line), $2);
+    // ErrorMessage(1,";","",@1.first_line);
+    // error_flag=1;
+    // }
 
+    
 %%
-
-
-
-
